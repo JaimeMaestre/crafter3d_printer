@@ -1,0 +1,52 @@
+{
+  "general": {
+    "on": "ON",
+    "off": "OFF",
+    "ok": "OK",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "name": "Nombre",
+    "opt": "Opciones",
+    "files": "Archivos"
+  },
+  "topBar": {
+    "status_connected": "Conectado",
+    "status_no_connected": "No Conectado",
+    "dashboard": "Panel",
+    "printFiles": "Archivos de Impresión",
+    "settings": "Configuraciones",
+    "models": "Modelos 3D",
+    "emergency_stop": "Parada de Emergencia",
+    "stop": "Parar"
+  },
+  "sideBar": {
+    "menu": "Menú"
+  },
+  "printerSettings_startup": {
+    "header": "Configuraciones de Inicio",
+    "light_start": "Luz al Iniciar",
+    "homing_start": "Homing al Iniciar",
+    "beltThrow_start": "Lanzamiento de Cinta al Iniciar"
+  },
+  "printerSettings_heatProfiles": {
+    "header": "Perfiles de Calentamiento",
+    "profile": "perfil",
+    "bed_target": "Objetivo de Cama",
+    "hotend_target": "Objetivo del Hotend"
+  },
+  "printerSettings_motion": {
+    "header": "Movimiento y Límites",
+    "xy_speed": "Velocidad XY Manual",
+    "z_speed": "Velocidad Z Manual",
+    "ext_speed": "Velocidad del Extrusor Manual",
+    "belt_speed": "Velocidad de Cinta Manual",
+    "max_hotend_temp": "Temp. Máx. del Hotend",
+    "max_bed_temp": "Temp. Máx. de la Cama",
+    "belt_throw_loop": "Bucle de Lanzamiento de Cinta"
+  },
+  "printerSettings_others": {
+    "header": "Otras Configuraciones",
+    "recent_files": "Cantidad de Archivos Recientes",
+    "language": "Idioma"
+  }
+}

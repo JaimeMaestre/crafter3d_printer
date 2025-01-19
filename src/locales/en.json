@@ -1,0 +1,52 @@
+{
+  "general": {
+    "on": "ON",
+    "off": "OFF",
+    "ok": "OK",
+    "cancel": "Cancel",
+    "save": "Save",
+    "name": "Name",
+    "opt": "Opt",
+    "files": "Files"
+  },
+  "topBar": {
+    "status_connected": "Connected",
+    "status_no_connected": "No Connected",
+    "dashboard": "Dashboard",
+    "printFiles": "Print Files",
+    "settings": "Settings",
+    "models": "3D Models",
+    "emergency_stop": "Emergency Stop",
+    "stop": "Stop"
+  },
+  "sideBar": {
+    "menu": "Menu"
+  },
+  "printerSettings_startup": {
+    "header": "Startup Settings",
+    "light_start": "Ligth On Startup",
+    "homing_start": "Homing Startup",
+    "beltThrow_start": "Belt Throw Startup"
+  },
+  "printerSettings_heatProfiles": {
+    "header": "Heat Profiles",
+    "profile": "profile",
+    "bed_target": "Bed Target",
+    "hotend_target": "Hotend Target"
+  },
+  "printerSettings_motion": {
+    "header": "Motion & Limits",
+    "xy_speed": "Manual XY speed",
+    "z_speed": "Manual Z speed",
+    "ext_speed": "Manual Extruder speed",
+    "belt_speed": "Manual Belt speed",
+    "max_hotend_temp": "Max. Hotend temp.",
+    "max_bed_temp": "Max. Bed temp.",
+    "belt_throw_loop": "Belt Throw Loop"
+  },
+  "printerSettings_others": {
+    "header": "Other Settings",
+    "recent_files": "Qty Recent Files",
+    "language": "Language"
+  }
+}
