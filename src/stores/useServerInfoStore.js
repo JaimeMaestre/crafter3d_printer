@@ -85,7 +85,6 @@ export const useServerInfoStore = defineStore('ServerInfo', () => {
     websocketStore
       .sendMessage('machine.peripherals.usb')
       .then((response) => {
-        console.log(response.result.usb_devices)
         updateListUSB(response.result.usb_devices)
       })
       .catch((error) => {

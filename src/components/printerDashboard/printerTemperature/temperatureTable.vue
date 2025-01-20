@@ -16,17 +16,15 @@
         <td>
           {{ GeneralVariablesStore.temperatureStatus.hotend_status_temp ? 'ON' : 'OFF' }}
         </td>
-        <td>{{ Math.round(GeneralVariablesStore.temperatureStatus.hotend_current_temp) }} ºC</td>
+        <td>{{ GeneralVariablesStore.temperatureStatus.hotend_current_temp.toFixed(1) }} ºC</td>
         <td>
-          <div class="target_input">
+          <div class="target_input" v-if="GeneralVariablesStore.isPrinterSubscribe">
             <input
               type="number"
-              :max="GeneralVariablesStore.default_max_hotend_temp"
+              :max="GeneralVariablesStore.database.motion.default_max_hotend_temp"
               min="0"
               step="5"
-              value="0"
-              v-model.number="hotendTargetInput"
-              @change="PrinterStore.setHotendTemperature($event.target.value)"
+              v-model.number="hotendTarget"
             />
             ºC
           </div>
@@ -39,17 +37,15 @@
         <td>
           {{ GeneralVariablesStore.temperatureStatus.bed_status_temp ? 'ON' : 'OFF' }}
         </td>
-        <td>{{ Math.round(GeneralVariablesStore.temperatureStatus.bed_current_temp) }} ºC</td>
+        <td>{{ GeneralVariablesStore.temperatureStatus.bed_current_temp.toFixed(1) }} ºC</td>
         <td>
-          <div class="target_input">
+          <div class="target_input" v-if="GeneralVariablesStore.isPrinterSubscribe">
             <input
               type="number"
-              max="120"
+              :max="GeneralVariablesStore.database.motion.default_max_bed_temp"
               min="0"
               step="5"
-              value="0"
-              v-model.number="bedTargetInput"
-              @change="PrinterStore.setBedTemperature($event.target.value)"
+              v-model.number="bedTarget"
             />
             <span>ºC</span>
           </div>
@@ -83,53 +79,55 @@
 <script setup>
 import { usePrinterStore } from '@/stores/usePrinterStore.js'
 import { useGeneralVariablesStore } from '@/stores/useGeneralVariablesStore.js'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 const PrinterStore = usePrinterStore()
 const GeneralVariablesStore = useGeneralVariablesStore()
-const hotendTargetInput = ref(0)
-const bedTargetInput = ref(0)
 
-// Computed
+// Reactive target inputs for hotend and bed
+const hotendTarget = ref(GeneralVariablesStore.temperatureStatus.hotend_target_temp)
+const bedTarget = ref(GeneralVariablesStore.temperatureStatus.bed_target_temp)
+
+// Computed profiles
 const enabledHeatProfiles = computed(() =>
   Object.values(GeneralVariablesStore.database.heatProfiles).filter((profile) => profile.enabled),
 )
 
-const waitForHotendTarget = new Promise((resolve) => {
-  const checkConnection = setInterval(() => {
-    if (GeneralVariablesStore.is_hotend_target === true) {
-      clearInterval(checkConnection)
-      resolve()
-    }
-  }, 100)
-})
-waitForHotendTarget.then(() => {
-  hotendTargetInput.value = Math.round(PrinterStore.temperatureStatus.hotend_target_temp)
+// Watchers to sync reactive inputs with the store
+watch(
+  () => GeneralVariablesStore.temperatureStatus.hotend_target_temp,
+  (newValue) => {
+    hotendTarget.value = newValue
+  },
+)
+
+watch(
+  () => GeneralVariablesStore.temperatureStatus.bed_target_temp,
+  (newValue) => {
+    bedTarget.value = newValue
+  },
+)
+
+// Update store when user changes input
+watch(hotendTarget, (newValue) => {
+  GeneralVariablesStore.temperatureStatus.hotend_target_temp = newValue
+  PrinterStore.setHotendTemperature(newValue)
 })
 
-const waitForBedTarget = new Promise((resolve) => {
-  const checkConnection = setInterval(() => {
-    if (GeneralVariablesStore.is_bed_target === true) {
-      clearInterval(checkConnection)
-      resolve()
-    }
-  }, 100)
-})
-waitForBedTarget.then(() => {
-  bedTargetInput.value = Math.round(PrinterStore.temperatureStatus.bed_target_temp)
+watch(bedTarget, (newValue) => {
+  GeneralVariablesStore.temperatureStatus.bed_target_temp = newValue
+  PrinterStore.setBedTemperature(newValue)
 })
 
 // Methods
 function switchOff() {
-  bedTargetInput.value = 0
-  PrinterStore.offBedTemperature()
-  hotendTargetInput.value = 0
-  PrinterStore.offHotendTemperature()
+  hotendTarget.value = 0
+  bedTarget.value = 0
 }
 
 function activateProfile(profile) {
-  PrinterStore.setHotendTemperature(profile.hotend_temperature)
-  PrinterStore.setBedTemperature(profile.bed_temperature)
+  hotendTarget.value = profile.hotend_temperature
+  bedTarget.value = profile.bed_temperature
 }
 </script>
 

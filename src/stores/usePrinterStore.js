@@ -153,7 +153,11 @@ export const usePrinterStore = defineStore('printer', () => {
         script: `SET_HEATER_TEMPERATURE HEATER=heater_bed TARGET=${target_temperature}`,
       })
       .then(() => {
-        GeneralVariablesStore.temperatureStatus.bed_status_temp = true
+        if (target_temperature > 0) {
+          GeneralVariablesStore.temperatureStatus.bed_status_temp = true
+        } else {
+          GeneralVariablesStore.temperatureStatus.bed_status_temp = false
+        }
       })
       .catch((error) => {
         ModalStore.showErrorModal('Failed to set bed temperature: ' + error.message)
