@@ -1,6 +1,6 @@
 <template>
-  <h3 class="mt_0 mb_24">Fans Control</h3>
   <div>
+    <!-- Layer Fan -->
     <div class="fan_header">
       <div class="font_size_16_bold">
         <font-awesome-icon :icon="['fas', 'fan']" class="mr_8" />
@@ -10,16 +10,15 @@
     </div>
     <input
       type="range"
-      class="w_100 mt_12"
+      class="fan_input w_100 mt_12"
       min="0"
       max="1"
       step="0.1"
       @input="printerStore.setLayerFanSpeed(parseFloat($event.target.value))"
       :value="GeneralVariablesStore.fanStatus.layer_blower"
     />
-  </div>
 
-  <div>
+    <!-- Aux Fan -->
     <div class="fan_header mt_20">
       <div class="font_size_16_bold">
         <font-awesome-icon :icon="['fas', 'fan']" class="mr_8" />
@@ -29,16 +28,15 @@
     </div>
     <input
       type="range"
-      class="w_100 mt_12"
+      class="fan_input w_100 mt_12"
       min="0"
       max="1"
       step="0.1"
       @input="printerStore.setAuxBlowerFanSpeed(parseFloat($event.target.value))"
       :value="GeneralVariablesStore.fanStatus.aux_blower"
     />
-  </div>
 
-  <div>
+    <!-- Hotend Fan -->
     <div class="fan_header mt_20">
       <div class="font_size_16_bold">
         <font-awesome-icon :icon="['fas', 'fan']" class="mr_8" />
@@ -48,33 +46,22 @@
     </div>
     <input
       type="range"
-      class="w_100 mt_12"
+      class="fan_input w_100 mt_12"
       min="0"
       max="1"
       step="0.1"
-      :value="GeneralVariablesStore.fanStatus.aux_blower"
+      :value="GeneralVariablesStore.fanStatus.hotend_fan"
       disabled
     />
   </div>
 </template>
 
 <script setup>
-import { useGeneralVariablesStore } from '@/stores/useGeneralVariablesStore'
 import { usePrinterStore } from '@/stores/usePrinterStore'
+import { useGeneralVariablesStore } from '@/stores/useGeneralVariablesStore'
 
-// Variables
-const GeneralVariablesStore = useGeneralVariablesStore()
 const printerStore = usePrinterStore()
+const GeneralVariablesStore = useGeneralVariablesStore()
 </script>
 
-<style scoped>
-.fan_buttons {
-  flex: 1 1 300px;
-}
-
-.fan_buttons .fan_header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-</style>
+<style scoped></style>

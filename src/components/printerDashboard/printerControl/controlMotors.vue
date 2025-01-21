@@ -8,7 +8,7 @@
           <button class="btn button_primary" @click="move_Y(1)">+Y</button>
         </div>
         <div class="x_buttons mt_8">
-          <button class="btn button_primary" @click="move_X(1)">+X</button>
+          <button class="btn button_primary" @click="move_X(-1)">-X</button>
           <button
             class="btn"
             @click="home_XY()"
@@ -20,7 +20,7 @@
           >
             <font-awesome-icon :icon="['fas', 'house']" />
           </button>
-          <button class="btn button_primary" @click="move_X(-1)">-X</button>
+          <button class="btn button_primary" @click="move_X(1)">+X</button>
         </div>
         <div class="mt_8">
           <button class="btn button_primary" @click="move_Y(-1)">-Y</button>
@@ -52,7 +52,7 @@
         <button class="btn button_primary_empty btn_home mt_8" disabled>
           <font-awesome-icon :icon="['fas', 'gears']" />
         </button>
-        <button class="btn button_primary mt_8" @click="move_Ext(1)">+Ext</button>
+        <button class="btn button_primary mt_8" @click="move_Ext(-1)">+Ext</button>
       </div>
     </div>
     <div class="belt_control mt_20">

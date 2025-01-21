@@ -81,10 +81,9 @@ import { usePrinterStore } from '@/stores/usePrinterStore.js'
 import { useGeneralVariablesStore } from '@/stores/useGeneralVariablesStore.js'
 import { ref, computed, watch } from 'vue'
 
+// Variables
 const PrinterStore = usePrinterStore()
 const GeneralVariablesStore = useGeneralVariablesStore()
-
-// Reactive target inputs for hotend and bed
 const hotendTarget = ref(GeneralVariablesStore.temperatureStatus.hotend_target_temp)
 const bedTarget = ref(GeneralVariablesStore.temperatureStatus.bed_target_temp)
 
@@ -93,7 +92,7 @@ const enabledHeatProfiles = computed(() =>
   Object.values(GeneralVariablesStore.database.heatProfiles).filter((profile) => profile.enabled),
 )
 
-// Watchers to sync reactive inputs with the store
+// Watchers
 watch(
   () => GeneralVariablesStore.temperatureStatus.hotend_target_temp,
   (newValue) => {
