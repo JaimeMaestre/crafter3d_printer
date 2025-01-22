@@ -12,8 +12,8 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
   const printerAxesConfigError = ref(false)
 
   // General Server
-  const hostname = ref('crafter3d')
-  const port = ref('7125')
+  const hostname = ref(import.meta.env.VITE_APP_HOSTNAME || 'localhost')
+  const port = ref(import.meta.env.VITE_APP_PORT || '7125')
 
   // Variables Websocket
   const isWebsocketConnected = ref(false)
