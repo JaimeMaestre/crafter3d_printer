@@ -19,7 +19,7 @@ export const useWebsocketStore = defineStore('websocket', () => {
       console.warn('WebSocket already connected')
       return
     }
-
+    console.log(GeneralVariablesStore.hostname)
     socket.value = new WebSocket(
       'ws://' +
         GeneralVariablesStore.hostname +
