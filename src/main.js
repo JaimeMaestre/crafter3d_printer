@@ -16,6 +16,7 @@ import { usePrinterStore } from './stores/usePrinterStore'
 import { useDatabaseStore } from './stores/useDatabaseStore'
 import { useJobQueueStore } from '@/stores/useJobQueueStore'
 import { usePrintFilesStore } from '@/stores/usePrintFilesStore'
+import { useGeneralVariablesStore } from '@/stores/useGeneralVariablesStore'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -142,9 +143,18 @@ library.add(
   faWrench,
 )
 
+// Get hostname
 app.component('font-awesome-icon', FontAwesomeIcon).mount('#app')
+const is_production = import.meta.env.IS_PRODUCTION
+const GeneralVariablesStore = useGeneralVariablesStore()
+if (is_production === true) {
+  GeneralVariablesStore.hostname = window.location.host
+} else {
+  // For local use
+  GeneralVariablesStore.hostname = 'crafter-m6-0001.local'
+}
 
-// Initialize websocket connection
+// Initialize server
 const websocketStore = useWebsocketStore()
 websocketStore.connectWebSocket()
 const DatabaseStore = useDatabaseStore()

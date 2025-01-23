@@ -13,25 +13,18 @@ export const useWebsocketStore = defineStore('websocket', () => {
   const reconnectInterval = 5000
   let requestId = 0
 
-  // Action to connect WebSocket
   function connectWebSocket() {
     if (socket.value && socket.value.readyState === WebSocket.OPEN) {
       console.warn('WebSocket already connected')
       return
     }
     console.log(GeneralVariablesStore.hostname)
-    socket.value = new WebSocket(
-      'ws://' +
-        GeneralVariablesStore.hostname +
-        '.local:' +
-        GeneralVariablesStore.port +
-        '/websocket',
-    )
+    socket.value = new WebSocket('ws://' + GeneralVariablesStore.hostname + '/websocket')
 
     // On Connection Open
     socket.value.onopen = () => {
-      console.log('WebSocket connected')
       GeneralVariablesStore.isWebsocketConnected = true
+      console.log('WebSocket connected')
     }
 
     // On Message Received

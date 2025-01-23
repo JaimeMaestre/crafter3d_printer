@@ -11,11 +11,8 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
   const side_menu_visibility = ref(false)
   const printerAxesConfigError = ref(false)
 
-  // General Server
-  const hostname = ref(import.meta.env.VITE_APP_HOSTNAME || 'localhost')
-  const port = ref(import.meta.env.VITE_APP_PORT || '7125')
-
-  // Variables Websocket
+  // Moonraker API
+  const hostname = ref('')
   const isWebsocketConnected = ref(false)
   const WebsockeMmessages = reactive([])
 
@@ -432,9 +429,8 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
     // layout
     side_menu_visibility,
     printerAxesConfigError,
-    // General Server
+    // Server Config
     hostname,
-    port,
     // Websocket
     isWebsocketConnected,
     WebsockeMmessages,
