@@ -8,7 +8,7 @@ export const useCrafterAPIStore = defineStore('crafterAPI', () => {
 
   // Base URL for the API
   const api = axios.create({
-    baseURL: `http://${GeneralVariablesStore.hostname}`,
+    baseURL: `http://${GeneralVariablesStore.hostname}/crafter3d-api`,
     timeout: 10000, // 10 seconds timeout
   })
 
@@ -22,7 +22,7 @@ export const useCrafterAPIStore = defineStore('crafterAPI', () => {
     isLoading.value = true
     errorMessage.value = ''
     try {
-      const response = await api.post('/execute', { command })
+      const response = await api.post('/execute-command', { command })
       apiResponse.value = response.data
     } catch (error) {
       errorMessage.value = error.response?.data?.error || error.message

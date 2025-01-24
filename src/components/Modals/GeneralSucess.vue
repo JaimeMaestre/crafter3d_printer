@@ -13,9 +13,7 @@
 
       <div class="modal_content">
         <div>{{ ModalStore.successMessage }}</div>
-        <button class="btn button_primary mt_12" @click="ModalStore.closeModalSuccess">
-          Close
-        </button>
+        <button class="btn button_green mt_12" @click="ModalStore.closeModalSuccess">Close</button>
       </div>
     </div>
   </div>

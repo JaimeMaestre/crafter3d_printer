@@ -2,22 +2,7 @@
   <h3 class="mt_0 mb_24">Current position</h3>
 
   <div class="current_position">
-    <div class="axis_position">
-      <div class="div_input">
-        <div class="title">X</div>
-        <div>{{ GeneralVariablesStore.controlStatus.current_position[0].toFixed(1) }} mm</div>
-      </div>
-      <div class="div_input">
-        <div class="title">Y</div>
-        <div>{{ GeneralVariablesStore.controlStatus.current_position[1].toFixed(1) }} mm</div>
-      </div>
-      <div class="div_input">
-        <div class="title">Z</div>
-        <div>{{ GeneralVariablesStore.controlStatus.current_position[2].toFixed(1) }} mm</div>
-      </div>
-    </div>
-
-    <div class="printer_position mt_20">
+    <div class="printer_position">
       <div class="printer_image">
         <img
           class="image_150 image_round"
@@ -32,6 +17,21 @@
       </div>
       <div class="printer_sensors">
         <tableSensor />
+      </div>
+    </div>
+
+    <div class="axis_position mt_20">
+      <div class="div_input">
+        <div class="title">X</div>
+        <div>{{ GeneralVariablesStore.controlStatus.current_position[0].toFixed(1) }} mm</div>
+      </div>
+      <div class="div_input">
+        <div class="title">Y</div>
+        <div>{{ GeneralVariablesStore.controlStatus.current_position[1].toFixed(1) }} mm</div>
+      </div>
+      <div class="div_input">
+        <div class="title">Z</div>
+        <div>{{ GeneralVariablesStore.controlStatus.current_position[2].toFixed(1) }} mm</div>
       </div>
     </div>
   </div>

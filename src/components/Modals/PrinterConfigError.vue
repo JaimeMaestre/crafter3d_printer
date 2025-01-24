@@ -3,11 +3,12 @@
     class="modal"
     v-if="
       GeneralVariablesStore.printerAxesConfigError &&
-      GeneralVariablesStore.mcuStatus.mcu_state == 'ready'
+      GeneralVariablesStore.mcuStatus.mcu_state == 'ready' &&
+      GeneralVariablesStore.isWebsocketConnected
     "
   >
     <div class="modal_container">
-      <div class="modal_header">
+      <div class="modal_header modal_header_error">
         <div class="font_size_18_bold">
           <font-awesome-icon :icon="['fas', 'plug-circle-exclamation']" class="mr_8" />Unkown Core
           XY configuration

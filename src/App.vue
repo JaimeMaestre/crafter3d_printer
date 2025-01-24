@@ -8,6 +8,7 @@
     </main>
     <PrinterServerError />
     <PrinterConfigError />
+    <WebsocketError />
     <ErrorModal />
     <SuccessModal />
     <GeneralLoading />
@@ -29,11 +30,12 @@
 <script setup>
 import SideBar from '@/components/Layout/SideBar.vue'
 import TopBar from '@/components/Layout/TopBar.vue'
-import PrinterServerError from '@/components/Layout/PrinterServerError.vue'
 import ErrorModal from '@/components/Modals/GeneralError.vue'
 import SuccessModal from '@/components/Modals/GeneralSucess.vue'
 import GeneralLoading from '@/components/Modals/GeneralLoading.vue'
 import PrinterConfigError from '@/components/Modals/PrinterConfigError.vue'
+import PrinterServerError from '@/components/Modals/PrinterServerError.vue'
+import WebsocketError from '@/components/Modals/WebsocketError.vue'
 import { usePrintFilesStore } from '@/stores/usePrintFilesStore'
 import { ref } from 'vue'
 

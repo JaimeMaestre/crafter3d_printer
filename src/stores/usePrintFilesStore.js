@@ -47,13 +47,10 @@ export const usePrintFilesStore = defineStore('printFiles', () => {
 
     // Upload File
     try {
-      const response = await fetch(
-        `http://${GeneralVariablesStore.hostname}:${GeneralVariablesStore.port}/server/files/upload`,
-        {
-          method: 'POST',
-          body: formData,
-        },
-      )
+      const response = await fetch(`http://${GeneralVariablesStore.hostname}/server/files/upload`, {
+        method: 'POST',
+        body: formData,
+      })
 
       if (!response.ok) {
         modalStore.showErrorModal('File upload failed:' + response.statusText)

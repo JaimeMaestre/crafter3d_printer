@@ -1,22 +1,24 @@
 <template>
   <div v-if="generalVariables.side_menu_visibility" class="modal">
     <div class="side_menu">
-      <div class="side_menu_header">
-        <h3>{{ $t('sideBar.menu') }}</h3>
-        <span @click="toggleSideMenu">X</span>
-      </div>
-
       <ul>
-        <router-link to="/" active-class="nav_button_active">{{
-          $t('topBar.dashboard')
-        }}</router-link>
-        <router-link to="/print-files" active-class="nav_button_active">{{
-          $t('topBar.printFiles')
-        }}</router-link>
-        <router-link to="/settings" active-class="nav_button_active">{{
-          $t('topBar.settings')
-        }}</router-link>
+        <router-link to="/" active-class="nav_button_active" @click="toggleSideMenu">
+          <font-awesome-icon :icon="['fas', 'gamepad']" class="mr_8" />{{
+            $t('topBar.dashboard')
+          }}</router-link
+        >
+        <router-link to="/print-files" active-class="nav_button_active" @click="toggleSideMenu">
+          <font-awesome-icon :icon="['fas', 'file']" class="mr_8" />{{
+            $t('topBar.printFiles')
+          }}</router-link
+        >
+        <router-link to="/settings" active-class="nav_button_active" @click="toggleSideMenu">
+          <font-awesome-icon :icon="['fas', 'wrench']" class="mr_8" />{{
+            $t('topBar.settings')
+          }}</router-link
+        >
         <a href="https://mito3d.com/" target="_blank">{{ $t('topBar.models') }}</a>
+        <a @click="toggleSideMenu" class="close"> Close</a>
       </ul>
     </div>
   </div>
@@ -46,27 +48,6 @@ const toggleSideMenu = () => {
   border-bottom: 1px solid var(--primary-font-color);
 }
 
-.side_menu .side_menu_header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.side_menu .side_menu_header span {
-  margin-right: 60px;
-  cursor: pointer;
-  padding: 20px;
-}
-
-.side_menu .side_menu_header span:hover {
-  font-weight: bold;
-}
-
-.side_menu .side_menu_header h3 {
-  padding: 20px;
-  margin: 0px;
-}
-
 ul {
   list-style: none;
   padding: 0;
@@ -79,11 +60,18 @@ ul a {
   text-decoration: none;
   color: var(--primary-font-color);
   display: block;
+  cursor: pointer;
 }
 
 ul a:hover,
 .nav_button_active {
   background-color: var(--primary-color-9);
+  font-weight: bold;
+}
+
+.close:hover {
+  background-color: var(--complementary-color-8);
+  color: black;
   font-weight: bold;
 }
 

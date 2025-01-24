@@ -1,8 +1,9 @@
 <template>
   <div
     v-if="
-      !GeneralVariablesStore.isWebsocketConnected ||
-      GeneralVariablesStore.mcuStatus.mcu_state != 'ready'
+      (!GeneralVariablesStore.isWebsocketConnected ||
+        GeneralVariablesStore.mcuStatus.mcu_state != 'ready') &&
+      GeneralVariablesStore.isWebsocketConnected
     "
     class="modal"
   >

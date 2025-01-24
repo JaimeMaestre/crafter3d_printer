@@ -18,7 +18,6 @@ export const useWebsocketStore = defineStore('websocket', () => {
       console.warn('WebSocket already connected')
       return
     }
-    console.log(GeneralVariablesStore.hostname)
     socket.value = new WebSocket('ws://' + GeneralVariablesStore.hostname + '/websocket')
 
     // On Connection Open
@@ -51,7 +50,7 @@ export const useWebsocketStore = defineStore('websocket', () => {
           }
         }
       } catch (error) {
-        console.log(error.message)
+        console.error(error.message)
       }
     }
 
@@ -62,7 +61,7 @@ export const useWebsocketStore = defineStore('websocket', () => {
     }
 
     socket.value.onerror = (error) => {
-      ModalStore.showErrorModal('WebSocket error: ' + error.message)
+      console.error('WebSocket error: ' + error.message)
     }
   }
 

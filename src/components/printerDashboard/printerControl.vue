@@ -25,13 +25,13 @@
       <webCam />
 
       <div class="box_content_info">
-        <div class="control_panel_flex">
-          <div class="position flex_left">
-            <currentPosition />
-          </div>
-
+        <div class="control_panel_flex flex_reverse">
           <div class="flex_right">
             <shortCuts />
+          </div>
+
+          <div class="position flex_left">
+            <currentPosition />
           </div>
         </div>
 
@@ -66,6 +66,10 @@ const box_visible_printerControl = ref(true)
   flex-wrap: wrap;
   align-items: flex-start;
   gap: 32px;
+}
+
+.flex_reverse {
+  flex-direction: row-reverse;
 }
 
 .control_panel_flex .flex_left {

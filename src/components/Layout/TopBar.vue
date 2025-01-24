@@ -8,7 +8,14 @@
         <img src="/public/android-chrome-512x512.png" alt="Crafter3D Logo" class="image_50" />
       </div>
       <div class="font_size_14 printer_name">
-        <div class="printer_code">C3D_0001</div>
+        <div class="printer_code">
+          {{
+            GeneralVariablesStore.hostname
+              .replace('.local', '')
+              .replace('crafter-m6', 'C3D')
+              .toUpperCase()
+          }}
+        </div>
         <div
           v-if="GeneralVariablesStore.mcuStatus.mcu_state != 'ready'"
           class="font_red font_extra_bold font_size_14_bold"
