@@ -2,8 +2,8 @@
   <div class="box_content_large">
     <div class="box_content_header">
       <div>
-        <font-awesome-icon :icon="['fas', 'temperature-three-quarters']" class="mr_8" />
-        {{ $t(`printerSettings_heatProfiles.header`) }}
+        <font-awesome-icon :icon="['fas', 'ruler-vertical']" class="mr_8" />
+        Printer Calibration
       </div>
     </div>
 

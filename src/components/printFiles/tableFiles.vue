@@ -66,6 +66,9 @@
           </tr>
         </tbody>
       </table>
+      <div class="no_jobs mt_20" v-if="GeneralVariablesStore.allPrintFiles.length == 0">
+        Not files uploaded
+      </div>
     </div>
   </div>
 </template>
@@ -99,5 +102,9 @@ const onFileChange = (event) => {
 
 .date_format {
   max-width: 120px;
+}
+
+.no_jobs {
+  text-align: center;
 }
 </style>

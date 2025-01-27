@@ -81,6 +81,10 @@ import {
   faGear,
   faGamepad,
   faWrench,
+  faServer,
+  faRulerVertical,
+  faWifi,
+  faRotateRight,
 } from '@fortawesome/free-solid-svg-icons'
 
 // Add the "bars" icon to the library
@@ -141,6 +145,10 @@ library.add(
   faGear,
   faGamepad,
   faWrench,
+  faServer,
+  faRulerVertical,
+  faWifi,
+  faRotateRight,
 )
 
 // Get hostname

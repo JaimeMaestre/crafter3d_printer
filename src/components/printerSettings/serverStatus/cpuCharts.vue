@@ -92,8 +92,7 @@ watch(
 
 <style scoped>
 .percentages_charts {
-  justify-items: right;
-  margin-top: 20px;
+  display: flex;
 }
 
 .chart_wrapper {
