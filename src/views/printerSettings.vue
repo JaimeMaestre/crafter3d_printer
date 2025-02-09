@@ -1,7 +1,6 @@
 <template>
   <div class="printerSettings mb_40">
     <div>
-      <startUp />
       <motionSettings />
       <heatProfiles />
       <othersSettings />
@@ -22,7 +21,6 @@ import motionSettings from '@/components/printerSettings/printerSettings/motionS
 import serverStatus from '@/components/printerSettings/serverStatus/serverStatus.vue'
 import printerStatus from '@/components/printerSettings/printerStatus/printerStatus.vue'
 import wifiSettings from '@/components/printerSettings/wifiSettings/wifiSettings.vue'
-import startUp from '@/components/printerSettings/printerSettings/startUp.vue'
 import othersSettings from '@/components/printerSettings/printerSettings/othersSettings.vue'
 </script>
 

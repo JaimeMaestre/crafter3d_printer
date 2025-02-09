@@ -20,23 +20,27 @@
           <strong>Warnnings:</strong>
           {{ GeneralVariablesStore.mcuStatus.warnnings }}<br />
         </p>
-        <button class="btn button_primary mt_12 mb_12" @click="ServerInfoStore.resetFirmware()">
-          <font-awesome-icon :icon="['fas', 'power-off']" class="mr_8" /> Reset Firmware
-        </button>
       </div>
+
       <div>
         <p>
           <strong class="font_underline">List of USB</strong><br />
-          <span v-for="(device, index) in GeneralVariablesStore.listUSB" :key="index">
-            <strong>USB {{ device.device_id }}</strong>
-            <ul>
-              <li>Product: {{ device.product }}</li>
-              <li>Manufacturer: {{ device.manufacturer }}</li>
-              <li>Serial id: {{ device.serial }}</li>
-              <li>Description: {{ device.description }}</li>
-            </ul>
+          <span v-for="(usb, index) in USBlist" :key="index">
+            <strong>{{ index + 1 }} - {{ usb.device }}</strong>
           </span>
         </p>
+      </div>
+
+      <div class="mt_12 mb_12">
+        <button class="btn button_complementary" @click="ServerInfoStore.resetFirmware()">
+          <font-awesome-icon :icon="['fas', 'power-off']" class="mr_8" /> Reset Firmware
+        </button>
+        <router-link to="/edit-file-standard" class="btn button_primary_empty ml_8">
+          <font-awesome-icon :icon="['fas', 'pen']" class="mr_8" /> Edit standard cfg
+        </router-link>
+        <router-link to="/edit-file-45" class="btn button_primary_empty ml_8">
+          <font-awesome-icon :icon="['fas', 'pen']" class="mr_8" /> Edit infinite-Z cfg
+        </router-link>
       </div>
     </div>
   </div>
@@ -44,8 +48,22 @@
 
 <script setup>
 import { useGeneralVariablesStore } from '@/stores/useGeneralVariablesStore'
+import { useCrafterAPIStore } from '@/stores/useCrafterAPIStore'
+import { ref, onMounted } from 'vue'
 
 const GeneralVariablesStore = useGeneralVariablesStore()
+const CrafterAPIStore = useCrafterAPIStore()
+const USBlist = ref([])
+
+// Methods
+async function getchUSBconnections() {
+  await CrafterAPIStore.getUSBdevices()
+  USBlist.value = CrafterAPIStore.apiResponse
+}
+
+onMounted(() => {
+  getchUSBconnections()
+})
 </script>
 
 <style scoped>

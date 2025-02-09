@@ -18,22 +18,31 @@
         <tbody>
           <tr>
             <td class="table_button">
-              <button class="btn button_primary font_wrap table_button">
-                Verify toolhead precision
+              <button
+                class="btn button_primary font_wrap table_button"
+                @click="printerStore.calibrationHomingPrecision"
+              >
+                Homming precision
               </button>
             </td>
             <td class="title_name">
-              The calibration purpose is to verify the printer movement precision. Toolhead will
-              move
+              After conducting a full axes home, place the dial gauge on a position where Toolhead
+              is reading a value. Set the dial gauge to zero and press homming precision test. The
+              homming precision test will home full axes 5 times and stop on steps of 3 seconds in
+              order to get dial gauge values.
             </td>
           </tr>
           <tr>
             <td class="table_button">
-              <button class="btn button_primary font_wrap table_button">Retraction test</button>
+              <button
+                class="btn button_primary font_wrap table_button"
+                @click="printerStore.calibrationXYPrecision(10)"
+              >
+                XY motion precision
+              </button>
             </td>
             <td class="title_name">
-              Toolhead is going to extrude and retray filament. It will start changing from
-              extrusion to retraciton slowly and it will finish at low frequency speed.
+              Toolhead will move from 0 position to the home position increasing the speed from
             </td>
           </tr>
           <tr>
@@ -58,7 +67,10 @@
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { usePrinterStore } from '@/stores/usePrinterStore'
+const printerStore = usePrinterStore()
+</script>
 
 <style scoped>
 .table_button {

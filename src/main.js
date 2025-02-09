@@ -85,6 +85,7 @@ import {
   faRulerVertical,
   faWifi,
   faRotateRight,
+  faPen,
 } from '@fortawesome/free-solid-svg-icons'
 
 // Add the "bars" icon to the library
@@ -149,6 +150,7 @@ library.add(
   faRulerVertical,
   faWifi,
   faRotateRight,
+  faPen,
 )
 
 // Get hostname
@@ -174,7 +176,3 @@ const JobQueueStore = useJobQueueStore()
 JobQueueStore.getQueueJobs()
 const PrintFilesStore = usePrintFilesStore()
 PrintFilesStore.loadPrintFiles()
-
-import { useCrafterAPIStore } from '@/stores/useCrafterAPIStore'
-const CrafterAPIStore = useCrafterAPIStore()
-console.log(CrafterAPIStore.executeCommand('ls'))

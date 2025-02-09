@@ -43,7 +43,7 @@ const CrafterAPIStore = useCrafterAPIStore()
 
 // Methods
 async function forgetNetwork(ssid) {
-  await CrafterAPIStore.forgetConnection(ssid)
+  await CrafterAPIStore.deleteWifiConnection(ssid)
   ModalStore.closeModalForgetWifi()
 }
 </script>

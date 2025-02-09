@@ -11,14 +11,21 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@codemirror/basic-setup": "^0.20.0",
+    "@codemirror/language": "^6.10.8",
+    "@codemirror/legacy-modes": "^6.4.2",
+    "@codemirror/state": "^6.5.1",
+    "@codemirror/view": "^6.36.2",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/vue-fontawesome": "^3.0.8",
     "axios": "^1.7.9",
     "echarts": "^5.5.1",
     "pinia": "^2.2.6",
+    "thememirror": "^2.0.1",
     "three": "^0.171.0",
     "vue": "^3.5.13",
+    "vue-codemirror": "^6.1.1",
     "vue-echarts": "^7.0.3",
     "vue-i18n": "^11.0.1",
     "vue-router": "^4.5.0"

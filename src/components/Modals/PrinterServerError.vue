@@ -6,6 +6,7 @@
       GeneralVariablesStore.isWebsocketConnected
     "
     class="modal"
+    id="printerConnectionErrorModal"
   >
     <div class="modal_container">
       <div class="modal_header modal_header_error">
@@ -13,6 +14,7 @@
           <font-awesome-icon :icon="['fas', 'plug-circle-exclamation']" class="mr_8" />Printer
           Connection Error
         </div>
+        <button class="btn font_size_16_bold" type="button" @click="closeModal">X</button>
       </div>
 
       <div class="modal_content">
@@ -48,7 +50,7 @@
             <span class="font_size_16_bold">
               <font-awesome-icon :icon="['fas', 'file-pen']" class="mr_8 font_blue" /> Notes:</span
             >
-            {{ GeneralVariablesStore.mcuStatus.error }}
+            {{ GeneralVariablesStore.mcuStatus.status }}
           </div>
           <div>
             <span class="font_size_16_bold">
@@ -93,6 +95,13 @@ const GeneralVariablesStore = useGeneralVariablesStore()
 // Methods
 const refreshPage = () => {
   window.location.reload() // Reloads the current page
+}
+
+const closeModal = () => {
+  const modalElement = document.getElementById('printerConnectionErrorModal')
+  if (modalElement) {
+    modalElement.style.display = 'none'
+  }
 }
 </script>
 

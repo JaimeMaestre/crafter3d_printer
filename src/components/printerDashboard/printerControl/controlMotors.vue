@@ -66,17 +66,17 @@
     <div class="distance_buttons mt_20">
       <button
         class="btn btn_first"
-        :class="distance === 0.1 ? 'button_primary' : 'button_primary_empty'"
-        @click="setDistance(0.1)"
-      >
-        0.1mm
-      </button>
-      <button
-        class="btn"
         :class="distance === 1 ? 'button_primary' : 'button_primary_empty'"
         @click="setDistance(1)"
       >
         1mm
+      </button>
+      <button
+        class="btn"
+        :class="distance === 5 ? 'button_primary' : 'button_primary_empty'"
+        @click="setDistance(5)"
+      >
+        5mm
       </button>
       <button
         class="btn"
@@ -104,7 +104,7 @@ import { ref } from 'vue'
 // Variables
 const GeneralVariablesStore = useGeneralVariablesStore()
 const printerStore = usePrinterStore()
-const distance = ref(1)
+const distance = ref(5)
 
 // Methods
 const setDistance = (value) => {

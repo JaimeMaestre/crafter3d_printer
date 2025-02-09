@@ -125,6 +125,8 @@ body {
   margin-left: var(--bs-xl-margin);
   margin-right: var(--bs-xl-margin);
   max-width: 1500px;
+  justify-self: center;
+  width: 100%;
 }
 
 .body_container {
@@ -1386,7 +1388,7 @@ h4 {
 .box_content_medium,
 .box_content_large {
   background-color: var(--grey-color-12);
-  border-radius: 10px;
+  border-radius: 5px;
 }
 
 .box_content_small {
@@ -1401,13 +1403,14 @@ h4 {
 
 .box_content_large {
   min-width: 400px;
+  max-width: 100%;
 }
 
 .box_content_header {
   padding: 8px 20px;
   border-bottom: 1px solid var(--primary-font-color);
-  background: var(--primary-color-8);
-  border-radius: 10px 10px 0 0;
+  background: linear-gradient(var(--primary-color-8), var(--primary-color-12));
+  border-radius: 5px 5px 0 0;
   font-weight: bold;
   display: flex;
   align-items: center;

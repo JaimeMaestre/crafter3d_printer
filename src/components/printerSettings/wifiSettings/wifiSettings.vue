@@ -87,61 +87,49 @@
 </template>
 
 <script setup>
-import { useGeneralVariablesStore } from '@/stores/useGeneralVariablesStore'
-import { useCrafterAPIStore } from '@/stores/useCrafterAPIStore'
 import addWifi from '@/components/Modals/addWifi.vue'
 import forgetWifi from '@/components/Modals/forgetWifi.vue'
+import { useGeneralVariablesStore } from '@/stores/useGeneralVariablesStore'
+import { useCrafterAPIStore } from '@/stores/useCrafterAPIStore'
 import { useModalStore } from '@/stores/useModalStore'
 import { ref, onMounted } from 'vue'
 
 const GeneralVariablesStore = useGeneralVariablesStore()
 const ModalStore = useModalStore()
 const CrafterAPIStore = useCrafterAPIStore()
-
-// States
 const activeWifiConnection = ref(null)
 const listSavedNetworks = ref([])
 const listAvailableNetwork = ref([])
 
 // Methods
-// API functions
-async function API_fetchActiveConnection() {
-  await CrafterAPIStore.fetchActiveConnection()
+async function fetchActiveConnection() {
+  await CrafterAPIStore.getActiveWifiConnection()
   const response = CrafterAPIStore.apiResponse
   if (response && response.activeConnection) {
     activeWifiConnection.value = response.activeConnection
   }
 }
 
-// Fetch saved networks
-async function API_fetchSavedNetworks() {
-  await CrafterAPIStore.fetchSavedConnections()
+async function fetchSavedConnections() {
+  await CrafterAPIStore.getSavedWifiConnections()
   listSavedNetworks.value = CrafterAPIStore.apiResponse || []
 }
 
-// Fetch available networks
-async function API_fetchAvailableNetworks() {
-  await CrafterAPIStore.fetchAvailableNetworks()
+async function fetchAvailableNetworks() {
+  await CrafterAPIStore.getAvailableWifiNetworks()
   listAvailableNetwork.value = CrafterAPIStore.apiResponse || []
 }
 
-// // Forget a network
-// async function forgetNetwork(ssid) {
-//   await CrafterAPIStore.forgetConnection(ssid)
-//   API_fetchSavedNetworks()
-// }
-
 async function reloadNetworks() {
   listAvailableNetwork.value = []
-  await API_fetchSavedNetworks()
-  await API_fetchAvailableNetworks()
+  await fetchSavedConnections()
+  await fetchAvailableNetworks()
 }
 
-// Lifecycle Hook
 onMounted(() => {
-  API_fetchActiveConnection()
-  API_fetchSavedNetworks()
-  API_fetchAvailableNetworks()
+  fetchActiveConnection()
+  fetchSavedConnections()
+  fetchAvailableNetworks()
 })
 </script>
 

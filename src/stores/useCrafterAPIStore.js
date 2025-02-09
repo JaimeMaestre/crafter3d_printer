@@ -18,20 +18,8 @@ export const useCrafterAPIStore = defineStore('CrafterAPIStore', () => {
   const isLoading = ref(false)
   const apiResponse = ref(null)
 
-  // Methods
-  async function executeCommand(command) {
-    isLoading.value = true
-    try {
-      const response = await api.post('/shell/execute', { command })
-      apiResponse.value = response.data
-    } catch (error) {
-      modalStore.showErrorModal('Crafter API error:' + error.message)
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  async function newWifi(ssid, password) {
+  // post
+  async function newWifiConnection(ssid, password) {
     isLoading.value = true
     try {
       const response = await api.post('/wifi/new-connection', { ssid, password })
@@ -44,7 +32,47 @@ export const useCrafterAPIStore = defineStore('CrafterAPIStore', () => {
     }
   }
 
-  async function fetchAvailableNetworks() {
+  async function deleteWifiConnection(ssid) {
+    isLoading.value = true
+    try {
+      const response = await api.post('/wifi/delete-connection', { ssid })
+      apiResponse.value = response.data
+    } catch (error) {
+      modalStore.showErrorModal('Unable to forget connection:' + error.message)
+    } finally {
+      modalStore.showSuccessModal('Connection succesfully forgotten: ' + ssid)
+      isLoading.value = false
+    }
+  }
+
+  async function savePrinter45Config(newContent) {
+    isLoading.value = true
+    try {
+      const response = await api.post('/config-save-file/printer-45', { content: newContent })
+      modalStore.showSuccessModal(response.data.message)
+    } catch (error) {
+      modalStore.showErrorModal('Failed to update configuration file: ' + error.message)
+    } finally {
+      modalStore.showSuccessModal('File updated succesfully')
+      isLoading.value = false
+    }
+  }
+
+  async function savePrinterStandardConfig(newContent) {
+    isLoading.value = true
+    try {
+      const response = await api.post('/config-save-file/printer-standard', { content: newContent })
+      modalStore.showSuccessModal(response.data.message)
+    } catch (error) {
+      modalStore.showErrorModal('Failed to update configuration file: ' + error.message)
+    } finally {
+      modalStore.showSuccessModal('File updated succesfully')
+      isLoading.value = false
+    }
+  }
+
+  //getters
+  async function getAvailableWifiNetworks() {
     isLoading.value = true
     try {
       const response = await api.get('/wifi/available-networks')
@@ -56,7 +84,7 @@ export const useCrafterAPIStore = defineStore('CrafterAPIStore', () => {
     }
   }
 
-  async function fetchSavedConnections() {
+  async function getSavedWifiConnections() {
     isLoading.value = true
     try {
       const response = await api.get('/wifi/saved-connections')
@@ -68,20 +96,7 @@ export const useCrafterAPIStore = defineStore('CrafterAPIStore', () => {
     }
   }
 
-  async function forgetConnection(ssid) {
-    isLoading.value = true
-    try {
-      const response = await api.post('/wifi/forget-connection', { ssid })
-      apiResponse.value = response.data
-    } catch (error) {
-      modalStore.showErrorModal('Unable to forget connection:' + error.message)
-    } finally {
-      modalStore.showSuccessModal('Connection succesfully forgotten: ' + ssid)
-      isLoading.value = false
-    }
-  }
-
-  async function fetchActiveConnection() {
+  async function getActiveWifiConnection() {
     isLoading.value = true
     try {
       const response = await api.get('/wifi/active-connection')
@@ -93,14 +108,53 @@ export const useCrafterAPIStore = defineStore('CrafterAPIStore', () => {
     }
   }
 
+  async function getPrinter45Config() {
+    isLoading.value = true
+    try {
+      const response = await api.get('/config-get-file/printer-45')
+      apiResponse.value = response.data.content
+    } catch (error) {
+      modalStore.showErrorModal('Failed to fetch configuration file: ' + error.message)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function getPrinterStandardConfig() {
+    isLoading.value = true
+    try {
+      const response = await api.get('/config-get-file/printer-standard')
+      apiResponse.value = response.data.content
+    } catch (error) {
+      modalStore.showErrorModal('Failed to fetch configuration file: ' + error.message)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function getUSBdevices() {
+    isLoading.value = true
+    try {
+      const response = await api.get('/serial/devices')
+      apiResponse.value = response.data.devices
+    } catch (error) {
+      console.error('Failed to fetch USB connections: ' + error.message)
+    } finally {
+      isLoading.value = false
+    }
+  }
   return {
     isLoading,
     apiResponse,
-    executeCommand,
-    newWifi,
-    fetchAvailableNetworks,
-    fetchSavedConnections,
-    forgetConnection,
-    fetchActiveConnection,
+    newWifiConnection,
+    deleteWifiConnection,
+    savePrinter45Config,
+    savePrinterStandardConfig,
+    getAvailableWifiNetworks,
+    getSavedWifiConnections,
+    getActiveWifiConnection,
+    getPrinter45Config,
+    getPrinterStandardConfig,
+    getUSBdevices,
   }
 })

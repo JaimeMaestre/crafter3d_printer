@@ -45,7 +45,7 @@ const password = ref('')
 // Methods
 async function saveConnection(ssid) {
   ModalStore.closeModalAddWifi()
-  await CrafterAPIStore.newWifi(ssid, password.value)
+  await CrafterAPIStore.newWifiConnection(ssid, password.value)
 }
 </script>
 

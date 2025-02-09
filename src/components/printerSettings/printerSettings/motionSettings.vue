@@ -1,5 +1,5 @@
 <template>
-  <div class="box_content_small mt_32">
+  <div class="box_content_small">
     <div class="box_content_header">
       <div>
         <font-awesome-icon :icon="['fas', 'chalkboard']" class="mr_8" />

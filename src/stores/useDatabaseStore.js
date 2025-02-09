@@ -58,6 +58,12 @@ export const useDatabaseStore = defineStore('database', () => {
     return false
   }
 
+  function handleDatabase(data) {
+    for (const key in data) {
+      GeneralVariablesStore.database[key] = data[key]
+    }
+  }
+
   // Getters
   function getDatabase() {
     websocketStore
@@ -69,7 +75,7 @@ export const useDatabaseStore = defineStore('database', () => {
           if (isKeyMissing(GeneralVariablesStore.database, response.result.value)) {
             updateDatabase()
           } else {
-            GeneralVariablesStore.handleDatabase(response.result.value)
+            handleDatabase(response.result.value)
             //set language
             i18n.global.locale = GeneralVariablesStore.database.others.language || 'en'
           }

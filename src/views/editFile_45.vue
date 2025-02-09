@@ -1,41 +1,97 @@
 <template>
-  <div class="printing_files_container mb_40">
-    <printerStatus />
-    <tableFiles />
+  <div class="save_button">
+    <h1 class="font_size_38 m_0">Infinite-Z Configuration</h1>
+    <button class="btn button_green" @click="saveConfig()">
+      <font-awesome-icon :icon="['fas', 'floppy-disk']" class="mr_8" /> Save & Restart
+    </button>
+    <router-link to="/edit-file-standard" class="btn button_primary ml_8">
+      <font-awesome-icon :icon="['fas', 'pen']" class="mr_8" /> Edit standard cfg
+    </router-link>
   </div>
-  <addQueue />
+  <div class="editor-container">
+    <div ref="editorContainer" class="code-editor"></div>
+  </div>
 </template>
 
 <script setup>
-import printerStatus from '@/components/printFiles/printerStatus.vue'
-import tableFiles from '@/components/printFiles/tableFiles.vue'
-import addQueue from '@/components/Modals/addQueue.vue'
+import { ref, onMounted, watch } from 'vue'
+import { EditorState } from '@codemirror/state'
+import { EditorView } from 'codemirror'
+import { lineNumbers, highlightActiveLine, keymap } from '@codemirror/view'
+import { defaultKeymap } from '@codemirror/commands'
+import { StreamLanguage } from '@codemirror/language'
+import { shell } from '@codemirror/legacy-modes/mode/shell'
+import { boysAndGirls } from 'thememirror'
+import { useCrafterAPIStore } from '@/stores/useCrafterAPIStore'
+import { useServerInfoStore } from '@/stores/useServerInfoStore.js'
+
+const CrafterAPIStore = useCrafterAPIStore()
+const ServerInfoStore = useServerInfoStore()
+const configContent = ref('')
+const file_loaded = ref(false)
+const editorContainer = ref(null)
+const code_mirror = ref(null)
+
+async function saveConfig() {
+  file_loaded.value = false
+  configContent.value = code_mirror.value.state.doc.toString()
+  await CrafterAPIStore.savePrinter45Config(code_mirror.value.state.doc.toString())
+  file_loaded.value = true
+  ServerInfoStore.changePrinterCfg('config/printer_45.cfg', 'config/printer.cfg')
+  ServerInfoStore.resetFirmware()
+}
+
+onMounted(async () => {
+  await CrafterAPIStore.getPrinter45Config()
+  configContent.value = CrafterAPIStore.apiResponse
+  file_loaded.value = true
+})
+
+watch(file_loaded, (newValue) => {
+  if (newValue == true) {
+    code_mirror.value = new EditorView({
+      state: EditorState.create({
+        doc: configContent.value,
+        extensions: [
+          lineNumbers(),
+          highlightActiveLine(),
+          StreamLanguage.define(shell),
+          [boysAndGirls],
+          keymap.of(defaultKeymap),
+        ],
+      }),
+      parent: editorContainer.value,
+    })
+  }
+})
 </script>
 
 <style scoped>
-.printing_files_container {
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
+.editor-container {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: monospace;
+  margin-top: 110px;
+  margin-bottom: 60px;
+}
+
+.code-editor {
+  height: 100%;
   width: 100%;
 }
 
-.printing_files_container div {
-  flex: 1 1 auto;
+.save_button {
+  top: 54px;
+  position: fixed;
+  z-index: 5;
+  padding: 20px 0px;
+  background: black;
+  width: 100%;
 }
 
-@media (max-width: 1050px) {
-  .printing_files_container {
-    display: block;
-  }
-
-  .box_content_small {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .box_content_large {
-    margin-top: 20px;
+@media (max-width: 1000px) {
+  .save_button {
+    top: 46px;
   }
 }
 </style>

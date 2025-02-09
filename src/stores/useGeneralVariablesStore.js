@@ -92,11 +92,6 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
       ABS: { enabled: true, name: 'ABS', hotend_temperature: 260, bed_temperature: 90 },
       Custom: { enabled: false, name: 'Custom', hotend_temperature: 0, bed_temperature: 0 },
     },
-    startUp: {
-      light: { key: 'light', icon: 'lightbulb', value: false },
-      homing: { key: 'homing', icon: 'house', value: false },
-      beltThrow: { key: 'beltThrow', icon: 'circle-radiation', value: false },
-    },
     printerAxesPositionStandard: true,
     motion: {
       default_XY_speed: {
@@ -215,153 +210,6 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
     return formattedDate
   }
 
-  function handlePrinterData(data) {
-    const { print_stats, gcode_move, heater_bed, extruder, toolhead, motion_report } = data
-    const hotendFan = data['heater_fan hotend_fan']
-    const layerBlower = data['fan_generic layer_blower']
-    const auxBlower = data['fan_generic aux_blower_1']
-    const led = data['fan_generic my_led']
-    const endStop_standard_config = data['filament_switch_sensor mode_standard']
-    const endStop_45_degrees_config = data['filament_switch_sensor mode_45_degrees']
-    const endStop_filament_cut = data['filament_switch_sensor cutting_sensor']
-    const endStop_filament = data['filament_switch_sensor filament']
-
-    //End stops
-    if (endStop_standard_config) {
-      printerConfig.position_standard = endStop_standard_config.filament_detected
-      checkPrinterConfig()
-    }
-
-    if (endStop_45_degrees_config) {
-      printerConfig.position_45 = endStop_45_degrees_config.filament_detected
-      checkPrinterConfig()
-    }
-
-    if (endStop_filament) {
-      controlStatus.filament_sensor = endStop_filament.filament_detected
-    }
-
-    if (endStop_filament_cut) {
-      controlStatus.filament_cut = endStop_filament_cut.filament_detected
-    }
-
-    // Update print_stats
-    if (print_stats) {
-      printJobStatus.filename = print_stats.filename || printJobStatus.filename
-      printJobStatus.state = print_stats.state || printJobStatus.state
-      printJobStatus.progress = print_stats.progress || printJobStatus.progress
-      printJobStatus.total_duration = print_stats.total_duration || printJobStatus.total_duration
-      printJobStatus.print_duration = print_stats.print_duration || printJobStatus.print_duration
-      printJobStatus.filament_used_mm = print_stats.filament_used || printJobStatus.filament_used_mm
-      printJobStatus.total_layer = print_stats.total_layer || printJobStatus.total_layer
-      printJobStatus.current_layer = print_stats.current_layer || printJobStatus.current_layer
-
-      // Calculate time_left
-      if (printJobStatus.progress > 0 && printJobStatus.print_duration > 0) {
-        printJobStatus.time_left = printJobStatus.print_duration * (1 / printJobStatus.progress - 1)
-      } else {
-        printJobStatus.time_left = 0
-      }
-
-      // Calculate grams used
-      if (printJobStatus.filament_used_mm > 0) {
-        printJobStatus.filament_used_g =
-          (printJobStatus.filament_used_mm *
-            Math.PI *
-            Math.pow(filamentDiameter.value / 2, 2) *
-            filamentDensity.value) /
-          1000
-      }
-    }
-
-    // Update gcode_move
-    if (gcode_move) {
-      printJobStatus.speed_factor = gcode_move.speed_factor || printJobStatus.speed_factor
-      printJobStatus.extruder_factor = gcode_move.extrude_factor || printJobStatus.extruder_factor
-    }
-
-    // Update heater_bed
-    if (heater_bed) {
-      temperatureStatus.bed_current_temp =
-        heater_bed.temperature || temperatureStatus.bed_current_temp
-      temperatureStatus.bed_target_temp = heater_bed.target || temperatureStatus.bed_target_temp
-      temperatureStatus.bed_status_temp = heater_bed.status || temperatureStatus.bed_status_temp
-      if (heater_bed.temperatures) {
-        temperatureStatus.bed_historic_temp = heater_bed.temperatures.slice(
-          -temperatureStatus.maximum_history_values,
-        )
-      }
-      if (heater_bed.target) {
-        isBedTarget.value = true
-      }
-    }
-
-    // Update extruder
-    if (extruder) {
-      temperatureStatus.hotend_current_temp =
-        extruder.temperature || temperatureStatus.hotend_current_temp
-      temperatureStatus.hotend_target_temp = extruder.target || temperatureStatus.hotend_target_temp
-      temperatureStatus.hotend_status_temp = extruder.status || temperatureStatus.hotend_status_temp
-      if (extruder.temperatures) {
-        temperatureStatus.hotend_historic_temp = extruder.temperatures.slice(
-          -temperatureStatus.maximum_history_values,
-        )
-      }
-      if (extruder.target) {
-        isHotendTarget.value = true
-      }
-    }
-
-    // Update toolhead
-    if (toolhead) {
-      controlStatus.max_print_size = toolhead.axis_maximum || controlStatus.max_print_size
-      controlStatus.min_print_size = toolhead.axis_minimum || controlStatus.min_print_size
-      controlStatus.homed_axes = toolhead.homed_axes || controlStatus.homed_axes
-      controlStatus.max_accel = toolhead.max_accel || controlStatus.max_accel
-      controlStatus.max_velocity = toolhead.max_velocity || controlStatus.max_velocity
-      controlStatus.stalls = toolhead.stalls || controlStatus.stalls
-    }
-
-    // Update motion_report
-    if (motion_report) {
-      controlStatus.current_position = motion_report.live_position || controlStatus.current_position
-      controlStatus.live_velocity = motion_report.live_velocity || controlStatus.live_velocity
-      controlStatus.live_extruder_velocity =
-        motion_report.live_extruder_velocity || controlStatus.live_extruder_velocity
-
-      if (controlStatus.live_extruder_velocity > 0) {
-        controlStatus.flow_rate =
-          Math.PI * Math.pow(filamentDiameter.value / 2, 2) * controlStatus.live_extruder_velocity
-      }
-    }
-
-    // Update hotend Fan
-    if (hotendFan) {
-      fanStatus.hotend_fan = hotendFan.speed
-    }
-
-    // Update layer blower
-    if (layerBlower) {
-      fanStatus.layer_blower = layerBlower.speed
-    }
-
-    // Update aux blower
-    if (auxBlower) {
-      fanStatus.aux_blower = auxBlower.speed
-    }
-
-    // Update LED
-    if (led) {
-      if (led.speed > 0) {
-        controlStatus.led = true
-      } else {
-        controlStatus.led = false
-      }
-    }
-
-    isPrinterSubscribe.value = true
-  }
-
   function checkPrinterConfig() {
     if (printerConfig.position_standard === printerConfig.position_45) {
       printerAxesConfigError.value = true
@@ -369,6 +217,7 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
       printerConfig.position_standard &&
       printerConfig.position_standard != database.printerAxesPositionStandard
     ) {
+      printerAxesConfigError.value = false
       console.log('Changin printer.cfg to standard')
       ServerInfoStore.changePrinterCfg('config/printer_standard.cfg', 'config/printer.cfg')
       ServerInfoStore.resetFirmware()
@@ -378,6 +227,7 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
       printerConfig.position_45 === true &&
       printerConfig.position_45 == database.printerAxesPositionStandard
     ) {
+      printerAxesConfigError.value = false
       console.log('Changin printer.cfg to 45 degrees')
       ServerInfoStore.changePrinterCfg('config/printer_45.cfg', 'config/printer.cfg')
       ServerInfoStore.resetFirmware()
@@ -386,46 +236,12 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
     }
   }
 
-  function handleDatabase(data) {
-    for (const key in data) {
-      database[key] = data[key]
-    }
-  }
-
-  function handleServerUpdate(data) {
-    const { cpu_temp, moonraker_stats, system_memory, network, websocket_connections } = data
-
-    // Update CPU temperature
-    systemStats.cpuTemp = cpu_temp
-
-    // Update CPU usage
-    systemStats.cpuUsage = moonraker_stats?.cpu_usage || 0
-
-    // Update Memory usage
-    systemStats.memoryUsage.total = system_memory?.total || 0
-    systemStats.memoryUsage.available = system_memory?.available || 0
-    systemStats.memoryUsage.used = system_memory?.used || 0
-
-    // Update Network stats for wlan0
-    const wlan0 = network?.wlan0
-    if (wlan0) {
-      systemStats.network.wlan0.bandwidth = wlan0.bandwidth || 0
-      systemStats.network.wlan0.received = wlan0.received || 0
-      systemStats.network.wlan0.transmitted = wlan0.transmitted || 0
-    }
-
-    // Update WebSocket connections
-    systemStats.websocketConnections = websocket_connections || 0
-  }
-
   return {
     // Methods
     formatTime,
     formatPrintTime,
     formatFileTime,
-    handlePrinterData,
-    handleDatabase,
-    handleServerUpdate,
+    checkPrinterConfig,
     // layout
     side_menu_visibility,
     printerAxesConfigError,
