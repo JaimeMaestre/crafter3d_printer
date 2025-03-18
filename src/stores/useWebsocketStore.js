@@ -64,6 +64,7 @@ export const useWebsocketStore = defineStore('websocket', () => {
         // Handle JSON-RPC responses
         if (data.id && pendingRequests[data.id]) {
           pendingRequests[data.id](data)
+          console.log('WebSocket response:', data)
           delete pendingRequests[data.id]
         } else {
           // keep only the latest 5
@@ -114,12 +115,12 @@ export const useWebsocketStore = defineStore('websocket', () => {
       return new Promise((resolve, reject) => {
         pendingRequests[requestId] = resolve
 
-        setTimeout(() => {
-          if (pendingRequests[requestId]) {
-            reject(new Error(`Request ${requestId} timed out`))
-            delete pendingRequests[requestId]
-          }
-        }, 30000)
+        // setTimeout(() => {
+        //   if (pendingRequests[requestId]) {
+        //     reject(new Error(`Request ${requestId} timed out`))
+        //     delete pendingRequests[requestId]
+        //   }
+        // }, 30000)
       })
     } else {
       ModalStore.showErrorModal('Cannot send message: WebSocket is not connected')

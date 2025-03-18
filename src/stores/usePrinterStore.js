@@ -635,6 +635,16 @@ export const usePrinterStore = defineStore('printer', () => {
     }
   }
 
+  function zTilt() {
+    websocketStore
+      .sendMessage('printer.gcode.script', {
+        script: 'Z_TILT_ADJUST',
+      })
+      .catch((error) => {
+        ModalStore.showErrorModal('Failed to execute Z_TILT_ADJUST: ' + error.message)
+      })
+  }
+
   // Calibration functions
   async function calibrationHomingPrecision() {
     for (let i = 0; i < 5; i++) {
@@ -689,6 +699,7 @@ export const usePrinterStore = defineStore('printer', () => {
     moveExtruder,
     moveBelt,
     setLED,
+    zTilt,
     calibrationHomingPrecision,
     calibrationXYPrecision,
   }

@@ -6,7 +6,7 @@
         'btn button_primary': GeneralVariablesStore.controlStatus.homed_axes.includes('xyz'),
         'btn button_primary_empty': !GeneralVariablesStore.controlStatus.homed_axes.includes('xyz'),
       }"
-      @click="printerStore.setHomeFull()"
+      @click="printerStore.zTilt()"
     >
       <div class="font_size_18"><font-awesome-icon :icon="['fas', 'house']" /></div>
       Homming
