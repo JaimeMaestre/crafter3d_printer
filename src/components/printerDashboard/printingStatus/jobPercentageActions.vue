@@ -10,7 +10,7 @@
       <button class="btn button_primary font_size_14">
         <font-awesome-icon :icon="['fas', 'pause']" />
       </button>
-      <button class="btn button_red font_size_14s">
+      <button class="btn button_red font_size_14s" @click="JobQueueStore.cancelPrint">
         <font-awesome-icon :icon="['fas', 'stop']" />
       </button>
     </div>
@@ -24,9 +24,11 @@ import { CanvasRenderer } from 'echarts/renderers'
 import VChart from 'vue-echarts'
 import { ref } from 'vue'
 import { useGeneralVariablesStore } from '@/stores/useGeneralVariablesStore'
+import { useJobQueueStore } from '@/stores/useJobQueueStore'
 
 // Variables
 const GeneralVariablesStore = useGeneralVariablesStore()
+const JobQueueStore = useJobQueueStore()
 
 // Chart
 use([GaugeChart, CanvasRenderer])

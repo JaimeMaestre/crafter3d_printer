@@ -14,7 +14,7 @@
       min="0"
       max="1"
       step="0.1"
-      @input="printerStore.setLayerFanSpeed(parseFloat($event.target.value))"
+      @input="gCodeStore.setLayerFanSpeed(parseFloat($event.target.value))"
       :value="GeneralVariablesStore.fanStatus.layer_blower"
     />
 
@@ -32,7 +32,7 @@
       min="0"
       max="1"
       step="0.1"
-      @input="printerStore.setAuxBlowerFanSpeed(parseFloat($event.target.value))"
+      @input="gCodeStore.setAuxBlowerFanSpeed(parseFloat($event.target.value))"
       :value="GeneralVariablesStore.fanStatus.aux_blower"
     />
 
@@ -57,10 +57,10 @@
 </template>
 
 <script setup>
-import { usePrinterStore } from '@/stores/usePrinterStore'
+import { useGcodeStore } from '@/stores/useGcodeStore'
 import { useGeneralVariablesStore } from '@/stores/useGeneralVariablesStore'
 
-const printerStore = usePrinterStore()
+const gCodeStore = useGcodeStore()
 const GeneralVariablesStore = useGeneralVariablesStore()
 </script>
 

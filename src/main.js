@@ -86,6 +86,10 @@ import {
   faWifi,
   faRotateRight,
   faPen,
+  faArrowDownUpAcrossLine,
+  faVirusSlash,
+  faLocationCrosshairs,
+  faXmarksLines,
 } from '@fortawesome/free-solid-svg-icons'
 
 // Add the "bars" icon to the library
@@ -151,6 +155,10 @@ library.add(
   faWifi,
   faRotateRight,
   faPen,
+  faArrowDownUpAcrossLine,
+  faVirusSlash,
+  faLocationCrosshairs,
+  faXmarksLines,
 )
 
 // Get hostname

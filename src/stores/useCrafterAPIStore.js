@@ -8,20 +8,23 @@ export const useCrafterAPIStore = defineStore('CrafterAPIStore', () => {
   const GeneralVariablesStore = useGeneralVariablesStore()
   const modalStore = useModalStore()
 
-  // Base URL for the API
-  const api = axios.create({
-    baseURL: `http://${GeneralVariablesStore.hostname}/crafter3d-api`,
-    timeout: 10000, // 10 seconds timeout
-  })
-
   // States
   const isLoading = ref(false)
   const apiResponse = ref(null)
+
+  // Create a new API instance for each request
+  const getApi = () => {
+    return axios.create({
+      baseURL: 'http://' + GeneralVariablesStore.hostname + '/crafter3d-api',
+      timeout: 10000, // 10 seconds timeout
+    })
+  }
 
   // post
   async function newWifiConnection(ssid, password) {
     isLoading.value = true
     try {
+      const api = getApi()
       const response = await api.post('/wifi/new-connection', { ssid, password })
       apiResponse.value = response.data
     } catch (error) {
@@ -35,6 +38,7 @@ export const useCrafterAPIStore = defineStore('CrafterAPIStore', () => {
   async function deleteWifiConnection(ssid) {
     isLoading.value = true
     try {
+      const api = getApi()
       const response = await api.post('/wifi/delete-connection', { ssid })
       apiResponse.value = response.data
     } catch (error) {
@@ -45,10 +49,11 @@ export const useCrafterAPIStore = defineStore('CrafterAPIStore', () => {
     }
   }
 
-  async function savePrinter45Config(newContent) {
+  async function saveInfiniteZConfig(newContent) {
     isLoading.value = true
     try {
-      const response = await api.post('/config-save-file/printer-45', { content: newContent })
+      const api = getApi()
+      const response = await api.post('/config-save-file/infinite-z', { content: newContent })
       modalStore.showSuccessModal(response.data.message)
     } catch (error) {
       modalStore.showErrorModal('Failed to update configuration file: ' + error.message)
@@ -58,10 +63,53 @@ export const useCrafterAPIStore = defineStore('CrafterAPIStore', () => {
     }
   }
 
-  async function savePrinterStandardConfig(newContent) {
+  async function saveStandardConfig(newContent) {
     isLoading.value = true
     try {
-      const response = await api.post('/config-save-file/printer-standard', { content: newContent })
+      const api = getApi()
+      const response = await api.post('/config-save-file/standard', { content: newContent })
+      modalStore.showSuccessModal(response.data.message)
+    } catch (error) {
+      modalStore.showErrorModal('Failed to update configuration file: ' + error.message)
+    } finally {
+      modalStore.showSuccessModal('File updated succesfully')
+      isLoading.value = false
+    }
+  }
+
+  async function savePrinterConfig(newContent) {
+    isLoading.value = true
+    try {
+      const api = getApi()
+      const response = await api.post('/config-save-file/printer', { content: newContent })
+      modalStore.showSuccessModal(response.data.message)
+    } catch (error) {
+      modalStore.showErrorModal('Failed to update configuration file: ' + error.message)
+    } finally {
+      modalStore.showSuccessModal('File updated succesfully')
+      isLoading.value = false
+    }
+  }
+
+  async function togglePrinterStandardConfig() {
+    isLoading.value = true
+    try {
+      const api = getApi()
+      const response = await api.post('/config-file/toggle-standard')
+      modalStore.showSuccessModal(response.data.message)
+    } catch (error) {
+      modalStore.showErrorModal('Failed to update configuration file: ' + error.message)
+    } finally {
+      modalStore.showSuccessModal('File updated succesfully')
+      isLoading.value = false
+    }
+  }
+
+  async function togglePrinterInfiniteZConfig() {
+    isLoading.value = true
+    try {
+      const api = getApi()
+      const response = await api.post('/config-file/toggle-infinite-z')
       modalStore.showSuccessModal(response.data.message)
     } catch (error) {
       modalStore.showErrorModal('Failed to update configuration file: ' + error.message)
@@ -75,6 +123,7 @@ export const useCrafterAPIStore = defineStore('CrafterAPIStore', () => {
   async function getAvailableWifiNetworks() {
     isLoading.value = true
     try {
+      const api = getApi()
       const response = await api.get('/wifi/available-networks')
       apiResponse.value = response.data
     } catch (error) {
@@ -87,6 +136,7 @@ export const useCrafterAPIStore = defineStore('CrafterAPIStore', () => {
   async function getSavedWifiConnections() {
     isLoading.value = true
     try {
+      const api = getApi()
       const response = await api.get('/wifi/saved-connections')
       apiResponse.value = response.data
     } catch (error) {
@@ -99,6 +149,7 @@ export const useCrafterAPIStore = defineStore('CrafterAPIStore', () => {
   async function getActiveWifiConnection() {
     isLoading.value = true
     try {
+      const api = getApi()
       const response = await api.get('/wifi/active-connection')
       apiResponse.value = response.data
     } catch (error) {
@@ -108,10 +159,11 @@ export const useCrafterAPIStore = defineStore('CrafterAPIStore', () => {
     }
   }
 
-  async function getPrinter45Config() {
+  async function getInfiniteZConfig() {
     isLoading.value = true
     try {
-      const response = await api.get('/config-get-file/printer-45')
+      const api = getApi()
+      const response = await api.get('/config-get-file/infinite-z')
       apiResponse.value = response.data.content
     } catch (error) {
       modalStore.showErrorModal('Failed to fetch configuration file: ' + error.message)
@@ -120,10 +172,24 @@ export const useCrafterAPIStore = defineStore('CrafterAPIStore', () => {
     }
   }
 
-  async function getPrinterStandardConfig() {
+  async function getStandardConfig() {
     isLoading.value = true
     try {
-      const response = await api.get('/config-get-file/printer-standard')
+      const api = getApi()
+      const response = await api.get('/config-get-file/standard')
+      apiResponse.value = response.data.content
+    } catch (error) {
+      modalStore.showErrorModal('Failed to fetch configuration file: ' + error.message)
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function getPrinterConfig() {
+    isLoading.value = true
+    try {
+      const api = getApi()
+      const response = await api.get('/config-get-file/printer')
       apiResponse.value = response.data.content
     } catch (error) {
       modalStore.showErrorModal('Failed to fetch configuration file: ' + error.message)
@@ -135,6 +201,7 @@ export const useCrafterAPIStore = defineStore('CrafterAPIStore', () => {
   async function getUSBdevices() {
     isLoading.value = true
     try {
+      const api = getApi()
       const response = await api.get('/serial/devices')
       apiResponse.value = response.data.devices
     } catch (error) {
@@ -143,18 +210,23 @@ export const useCrafterAPIStore = defineStore('CrafterAPIStore', () => {
       isLoading.value = false
     }
   }
+
   return {
     isLoading,
     apiResponse,
     newWifiConnection,
     deleteWifiConnection,
-    savePrinter45Config,
-    savePrinterStandardConfig,
+    saveInfiniteZConfig,
+    saveStandardConfig,
+    savePrinterConfig,
+    togglePrinterStandardConfig,
+    togglePrinterInfiniteZConfig,
     getAvailableWifiNetworks,
     getSavedWifiConnections,
     getActiveWifiConnection,
-    getPrinter45Config,
-    getPrinterStandardConfig,
+    getInfiniteZConfig,
+    getStandardConfig,
+    getPrinterConfig,
     getUSBdevices,
   }
 })

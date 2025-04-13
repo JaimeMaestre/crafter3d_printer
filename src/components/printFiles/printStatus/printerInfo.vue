@@ -128,11 +128,11 @@
       <li>
         <div class="list_name">Door Status</div>
         <div>
-          {{ GeneralVariablesStore.controlStatus.filament_cut ? 'ON' : 'OFF' }}
+          {{ GeneralVariablesStore.controlStatus.door_sensor ? 'ON' : 'OFF' }}
           <font-awesome-icon
             :icon="['fas', 'circle']"
             class="ml_8"
-            :class="GeneralVariablesStore.controlStatus.filament_cut ? 'font_green' : 'font_red'"
+            :class="GeneralVariablesStore.controlStatus.door_sensor ? 'font_green' : 'font_red'"
           />
         </div>
       </li>

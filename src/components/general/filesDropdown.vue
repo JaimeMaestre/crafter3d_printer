@@ -37,8 +37,8 @@ function deleteFile(filename) {
 }
 
 function print_file(filename) {
-  JobQueueStore.addQueueJob(filename)
-  // JobQueueStore.startQueue()
+  // JobQueueStore.addQueueJob(filename)
+  JobQueueStore.printFile(filename)
 }
 </script>
 

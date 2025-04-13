@@ -51,9 +51,9 @@
       </div>
       <div class="mt_8">
         {{
-          GeneralVariablesStore.printJobStatus.filament_used_mm / 1000 < 0
+          GeneralVariablesStore.printJobStatus.filament_used_mm / 1000 < 1
             ? GeneralVariablesStore.printJobStatus.filament_used_mm.toFixed(1)
-            : GeneralVariablesStore.printJobStatus.filament_used_mm / 1000
+            : (GeneralVariablesStore.printJobStatus.filament_used_mm / 1000).toFixed(1)
         }}
         {{ GeneralVariablesStore.printJobStatus.filament_used_mm / 1000 < 0 ? 'mm' : 'm' }}
       </div>

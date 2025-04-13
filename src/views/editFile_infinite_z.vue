@@ -1,11 +1,11 @@
 <template>
   <div class="save_button">
-    <h1 class="font_size_38 m_0">Standard Configuration</h1>
+    <h1 class="font_size_38 m_0">Infinite-Z Configuration</h1>
     <button class="btn button_green" @click="saveConfig()">
       <font-awesome-icon :icon="['fas', 'floppy-disk']" class="mr_8" /> Save & Restart
     </button>
-    <router-link to="/edit-file-45" class="btn button_primary ml_8">
-      <font-awesome-icon :icon="['fas', 'pen']" class="mr_8" /> Edit infinite-Z cfg
+    <router-link to="/edit-file-standard" class="btn button_primary ml_8">
+      <font-awesome-icon :icon="['fas', 'pen']" class="mr_8" /> Edit standard cfg
     </router-link>
   </div>
   <div class="editor-container">
@@ -35,13 +35,13 @@ const code_mirror = ref(null)
 async function saveConfig() {
   file_loaded.value = false
   configContent.value = code_mirror.value.state.doc.toString()
-  await CrafterAPIStore.saveStandardConfig(code_mirror.value.state.doc.toString())
+  await CrafterAPIStore.saveInfiniteZConfig(code_mirror.value.state.doc.toString())
   file_loaded.value = true
   ServerInfoStore.resetFirmware()
 }
 
 onMounted(async () => {
-  await CrafterAPIStore.getStandardConfig()
+  await CrafterAPIStore.getInfiniteZConfig()
   configContent.value = CrafterAPIStore.apiResponse
   file_loaded.value = true
 })

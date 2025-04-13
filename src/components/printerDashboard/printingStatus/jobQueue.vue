@@ -22,7 +22,7 @@
       <tr>
         <th class="title_name">Job</th>
         <th>Qty</th>
-        <th>Opt</th>
+        <th class="file_options">Opt</th>
       </tr>
     </thead>
     <tbody>
@@ -194,5 +194,10 @@ li .job_quantity .btn {
 
 .file_options:hover .dropdown_content_menu {
   display: block;
+}
+
+.file_options {
+  width: 40px;
+  text-align: center;
 }
 </style>

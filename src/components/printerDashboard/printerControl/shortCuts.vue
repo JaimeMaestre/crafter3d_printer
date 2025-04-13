@@ -1,31 +1,27 @@
 <template>
   <h3 class="mt_0 mb_20">Shortcuts</h3>
   <div class="shortcut_buttons">
-    <button
-      :class="{
-        'btn button_primary': GeneralVariablesStore.controlStatus.homed_axes.includes('xyz'),
-        'btn button_primary_empty': !GeneralVariablesStore.controlStatus.homed_axes.includes('xyz'),
-      }"
-      @click="printerStore.zTilt()"
-    >
-      <div class="font_size_18"><font-awesome-icon :icon="['fas', 'house']" /></div>
-      Homming
+    <button class="btn button_primary_empty" @click="gCodeStore.setHomeFull()">
+      <div class="font_size_18">
+        <font-awesome-icon :icon="['fas', 'house']" />
+      </div>
+      Home
     </button>
     <button
       :class="{
         'btn button_primary': GeneralVariablesStore.controlStatus.led,
         'btn button_primary_empty': !GeneralVariablesStore.controlStatus.led,
       }"
-      @click="printerStore.setLED()"
+      @click="gCodeStore.setLED()"
     >
       <div class="font_size_18"><font-awesome-icon :icon="['fas', 'lightbulb']" /></div>
       Light
     </button>
-    <button class="btn button_primary_empty">
+    <button class="btn button_primary_empty" @click="gCodeStore.beltThrow()">
       <div class="font_size_18"><font-awesome-icon :icon="['fas', 'circle-radiation']" /></div>
       Belt Throw
     </button>
-    <button class="btn button_primary_empty">
+    <button class="btn button_primary_empty" @click="gCodeStore.cutFilament()">
       <div class="font_size_18"><font-awesome-icon :icon="['fas', 'scissors']" /></div>
       Filament Cut
     </button>
@@ -33,7 +29,7 @@
       <div class="font_size_18"><font-awesome-icon :icon="['fas', 'soap']" /></div>
       Purge & Clean
     </button>
-    <button class="btn button_primary_empty">
+    <button class="btn button_primary_empty" @click="gCodeStore.minZposition()">
       <div class="font_size_18"><font-awesome-icon :icon="['fas', 'arrow-down-short-wide']" /></div>
       Lower Z Axis
     </button>
@@ -42,11 +38,11 @@
 
 <script setup>
 import { useGeneralVariablesStore } from '@/stores/useGeneralVariablesStore'
-import { usePrinterStore } from '@/stores/usePrinterStore'
+import { useGcodeStore } from '@/stores/useGcodeStore'
 
 // Variables
 const GeneralVariablesStore = useGeneralVariablesStore()
-const printerStore = usePrinterStore()
+const gCodeStore = useGcodeStore()
 </script>
 
 <style scope>

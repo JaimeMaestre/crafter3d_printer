@@ -77,12 +77,12 @@
 </template>
 
 <script setup>
-import { usePrinterStore } from '@/stores/usePrinterStore.js'
+import { useGcodeStore } from '@/stores/useGcodeStore'
 import { useGeneralVariablesStore } from '@/stores/useGeneralVariablesStore.js'
 import { ref, computed, watch } from 'vue'
 
 // Variables
-const PrinterStore = usePrinterStore()
+const gCodeStore = useGcodeStore()
 const GeneralVariablesStore = useGeneralVariablesStore()
 const hotendTarget = ref(GeneralVariablesStore.temperatureStatus.hotend_target_temp)
 const bedTarget = ref(GeneralVariablesStore.temperatureStatus.bed_target_temp)
@@ -110,12 +110,12 @@ watch(
 // Update store when user changes input
 watch(hotendTarget, (newValue) => {
   GeneralVariablesStore.temperatureStatus.hotend_target_temp = newValue
-  PrinterStore.setHotendTemperature(newValue)
+  gCodeStore.setHotendTemperature(newValue)
 })
 
 watch(bedTarget, (newValue) => {
   GeneralVariablesStore.temperatureStatus.bed_target_temp = newValue
-  PrinterStore.setBedTemperature(newValue)
+  gCodeStore.setBedTemperature(newValue)
 })
 
 // Methods

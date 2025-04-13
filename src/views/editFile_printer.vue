@@ -35,14 +35,13 @@ const code_mirror = ref(null)
 async function saveConfig() {
   file_loaded.value = false
   configContent.value = code_mirror.value.state.doc.toString()
-  await CrafterAPIStore.savePrinter45Config(code_mirror.value.state.doc.toString())
+  await CrafterAPIStore.savePrinterConfig(code_mirror.value.state.doc.toString())
   file_loaded.value = true
-  ServerInfoStore.changePrinterCfg('config/printer_45.cfg', 'config/printer.cfg')
   ServerInfoStore.resetFirmware()
 }
 
 onMounted(async () => {
-  await CrafterAPIStore.getPrinter45Config()
+  await CrafterAPIStore.getPrinterConfig()
   configContent.value = CrafterAPIStore.apiResponse
   file_loaded.value = true
 })

@@ -39,7 +39,7 @@
             <th class="image">Img</th>
             <th class="title_name">Name</th>
             <th>Cfg</th>
-            <th>Opt</th>
+            <th class="file_options">Opt</th>
           </tr>
         </thead>
         <tbody>
@@ -103,6 +103,35 @@ const onFileChange = (event) => {
 }
 
 .no_jobs {
+  text-align: center;
+}
+
+table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.title_name {
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 10px;
+}
+
+.image {
+  width: 60px;
+  text-align: center;
+}
+
+.image img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
+.file_options {
+  width: 40px;
   text-align: center;
 }
 </style>

@@ -18,48 +18,68 @@
         <tbody>
           <tr>
             <td class="table_button">
-              <button
-                class="btn button_primary font_wrap table_button"
-                @click="printerStore.calibrationHomingPrecision"
-              >
-                Homming precision
+              <button class="btn button_primary font_wrap table_button" @click="gCodeStore.zTilt()">
+                <div class="font_size_18">
+                  <font-awesome-icon :icon="['fas', 'arrow-down-up-across-line']" />
+                </div>
+                Z Bed Tilt
               </button>
             </td>
             <td class="title_name">
-              After conducting a full axes home, place the dial gauge on a position where Toolhead
-              is reading a value. Set the dial gauge to zero and press homming precision test. The
-              homming precision test will home full axes 5 times and stop on steps of 3 seconds in
-              order to get dial gauge values.
+              If you notize that bed is tilted, run Z Bed Tilt in order to adjust calibration.
             </td>
           </tr>
           <tr>
             <td class="table_button">
               <button
                 class="btn button_primary font_wrap table_button"
-                @click="printerStore.calibrationXYPrecision(10)"
+                @click="gCodeStore.bedSensorCalibration()"
               >
-                XY motion precision
+                <div class="font_size_18">
+                  <font-awesome-icon :icon="['fas', 'xmarks-lines']" />
+                </div>
+                Bed sensor calibration
               </button>
             </td>
             <td class="title_name">
-              Toolhead will move from 0 position to the home position increasing the speed from
+              Piezo bed sensors sensibility will be set to 0. Then the bed will start making shaking
+              movements that will adjust the sensors to the right sensibility for maximum precision.
             </td>
           </tr>
           <tr>
             <td class="table_button">
-              <button class="btn button_primary font_wrap table_button">
-                Resonance Calibration
+              <button
+                class="btn button_primary font_wrap table_button"
+                @click="gCodeStore.probeAccuracy()"
+              >
+                <div class="font_size_18">
+                  <font-awesome-icon :icon="['fas', 'location-crosshairs']" />
+                </div>
+                Bed sensor accuracy
               </button>
             </td>
             <td class="title_name">
-              The toolhead will move at different frecuencies to make a resosnance calibraiton
+              Performs multiple Z measurements at the center of the bed to check the repeatability
+              of the Z offset. The test will measure 10 times and show statistics including mean,
+              standard deviation, and range.
             </td>
           </tr>
           <tr>
             <td class="table_button">
-              <button class="btn button_primary font_wrap table_button">Input shaper</button>
+              <button
+                class="btn button_primary font_wrap table_button w_100"
+                @click="gCodeStore.beltCalibrationStart()"
+              >
+                <div class="font_size_18">
+                  <font-awesome-icon :icon="['fas', 'circle-radiation']" />
+                </div>
+                Belt Motion
+              </button>
             </td>
-            <td class="title_name">Calibrate extruder input shaper</td>
+            <td class="title_name">
+              Belt will start moving until stop button is pressed. Check if belt is properly
+              installed and review if is moving sideways
+            </td>
           </tr>
         </tbody>
       </table>
@@ -68,12 +88,13 @@
 </template>
 
 <script setup>
-import { usePrinterStore } from '@/stores/usePrinterStore'
-const printerStore = usePrinterStore()
+import { useGcodeStore } from '@/stores/useGcodeStore'
+
+const gCodeStore = useGcodeStore()
 </script>
 
 <style scoped>
 .table_button {
-  max-width: 120px;
+  max-width: 150px;
 }
 </style>

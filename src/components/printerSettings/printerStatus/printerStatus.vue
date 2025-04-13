@@ -3,7 +3,7 @@
     <div class="box_content_header">
       <div>
         <font-awesome-icon :icon="['fas', 'chalkboard']" class="mr_8" />
-        Server Status
+        Printer Status
       </div>
     </div>
 
@@ -38,8 +38,11 @@
         <router-link to="/edit-file-standard" class="btn button_primary_empty ml_8">
           <font-awesome-icon :icon="['fas', 'pen']" class="mr_8" /> Edit standard cfg
         </router-link>
-        <router-link to="/edit-file-45" class="btn button_primary_empty ml_8">
+        <router-link to="/edit-file-infinite-z" class="btn button_primary_empty ml_8">
           <font-awesome-icon :icon="['fas', 'pen']" class="mr_8" /> Edit infinite-Z cfg
+        </router-link>
+        <router-link to="/edit-file-printer" class="btn button_primary_empty ml_8">
+          <font-awesome-icon :icon="['fas', 'pen']" class="mr_8" /> Edit printer cfg
         </router-link>
       </div>
     </div>

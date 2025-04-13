@@ -2,10 +2,12 @@ import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
 import { useServerInfoStore } from './useServerInfoStore'
 import { useDatabaseStore } from './useDatabaseStore'
+import { useCrafterAPIStore } from './useCrafterAPIStore'
 
 export const useGeneralVariablesStore = defineStore('generalVariables', () => {
   const ServerInfoStore = useServerInfoStore()
   const DatabaseStore = useDatabaseStore()
+  const CrafterAPIStore = useCrafterAPIStore()
 
   // Variables layout
   const side_menu_visibility = ref(false)
@@ -17,6 +19,7 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
   const WebsockeMmessages = reactive([])
 
   // Variables Moonraker Server
+  const isMoonrakerConnected = ref(false)
   const mcuStatus = reactive({
     hostname: '',
     klippy: '',
@@ -27,6 +30,7 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
   })
 
   // Variables Printer
+  const gcodeHistory = ref([])
   const printerConfigStandardPosition = ref(true)
   const isPrinterSubscribe = ref(false)
   const isHotendTarget = ref(false)
@@ -72,6 +76,8 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
     led: false,
     filament_sensor: false,
     filament_cut: false,
+    door_sensor: false,
+    low_z_sensor: false,
   })
   const fanStatus = reactive({
     hotend_fan: 0,
@@ -113,7 +119,7 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
         translationKey: 'ext_speed',
       },
       default_belt_speed: {
-        value: 60, // 60mm/min - 1mm/s
+        value: 50, // 60mm/min - 1mm/s
         unit: 'mm/min',
         icon: 'circle-radiation',
         translationKey: 'belt_speed',
@@ -157,7 +163,7 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
 
   // Variables Queue
   const queueJobs = ref([])
-  const queueStatus = ref('Unkown')
+  const queueStatus = ref('')
 
   // Variables system state
   const systemStats = reactive({
@@ -178,6 +184,9 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
     websocketConnections: 0,
   })
   const listUSB = reactive([])
+  const probeAccuracyModalVisible = ref(false)
+  const probeResults = ref(null)
+  const probeZValue = ref(null)
 
   // Helpers Methods
   function formatTime(seconds) {
@@ -219,7 +228,7 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
     ) {
       printerAxesConfigError.value = false
       console.log('Changin printer.cfg to standard')
-      ServerInfoStore.changePrinterCfg('config/printer_standard.cfg', 'config/printer.cfg')
+      CrafterAPIStore.togglePrinterStandardConfig()
       ServerInfoStore.resetFirmware()
       database.printerAxesPositionStandard = true
       DatabaseStore.updateDatabase()
@@ -228,8 +237,8 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
       printerConfig.position_45 == database.printerAxesPositionStandard
     ) {
       printerAxesConfigError.value = false
-      console.log('Changin printer.cfg to 45 degrees')
-      ServerInfoStore.changePrinterCfg('config/printer_45.cfg', 'config/printer.cfg')
+      console.log('Changin printer.cfg to infinite-z')
+      CrafterAPIStore.togglePrinterInfiniteZConfig()
       ServerInfoStore.resetFirmware()
       database.printerAxesPositionStandard = false
       DatabaseStore.updateDatabase()
@@ -251,8 +260,10 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
     isWebsocketConnected,
     WebsockeMmessages,
     // Moonraker Server
+    isMoonrakerConnected,
     mcuStatus,
     // Printer
+    gcodeHistory,
     printerConfigStandardPosition,
     isPrinterSubscribe,
     isHotendTarget,
@@ -276,5 +287,9 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
     // System state
     systemStats,
     listUSB,
+    // Probe accuracy
+    probeAccuracyModalVisible,
+    probeResults,
+    probeZValue,
   }
 })

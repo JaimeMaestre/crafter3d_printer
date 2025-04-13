@@ -7,6 +7,7 @@
     </div>
     <div class="printerSettings_mobile">
       <calibrationButtons />
+      <gcodeConsole />
       <serverStatus />
       <printerStatus />
       <wifiSettings />
@@ -22,6 +23,7 @@ import serverStatus from '@/components/printerSettings/serverStatus/serverStatus
 import printerStatus from '@/components/printerSettings/printerStatus/printerStatus.vue'
 import wifiSettings from '@/components/printerSettings/wifiSettings/wifiSettings.vue'
 import othersSettings from '@/components/printerSettings/printerSettings/othersSettings.vue'
+import gcodeConsole from '@/components/printerSettings/console/GcodeConsole.vue'
 </script>
 
 <style scoped>

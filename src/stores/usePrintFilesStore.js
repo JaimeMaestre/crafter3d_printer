@@ -62,7 +62,7 @@ export const usePrintFilesStore = defineStore('printFiles', () => {
     }
   }
 
-  function deletePrintFile(filename) {
+  async function deletePrintFile(filename) {
     if (!filename) {
       modalStore.showErrorModal('No file selected for deletion')
       return
@@ -79,7 +79,7 @@ export const usePrintFilesStore = defineStore('printFiles', () => {
       })
   }
 
-  function loadPrintFiles() {
+  async function loadPrintFiles() {
     const waitForConnection = new Promise((resolve) => {
       const checkConnection = setInterval(() => {
         if (GeneralVariablesStore.isDatabaseLoaded) {
@@ -151,6 +151,7 @@ export const usePrintFilesStore = defineStore('printFiles', () => {
     }
   }
 
+  // Helpers
   function filamentWeight(length) {
     // Convert diameter from mm to cm
     const radius = 1.75 / 20 // Divide by 2 for radius, then by 10 for cm

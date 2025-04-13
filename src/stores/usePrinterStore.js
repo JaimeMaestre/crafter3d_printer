@@ -2,18 +2,24 @@ import { defineStore } from 'pinia'
 import { useWebsocketStore } from './useWebsocketStore'
 import { useModalStore } from './useModalStore'
 import { useGeneralVariablesStore } from './useGeneralVariablesStore'
+import { useGcodeStore } from './useGcodeStore'
 
 export const usePrinterStore = defineStore('printer', () => {
   // Imported Variables
   const websocketStore = useWebsocketStore()
   const ModalStore = useModalStore()
   const GeneralVariablesStore = useGeneralVariablesStore()
+  const gCodeStore = useGcodeStore()
 
   // Initialize
   function initPrinterLoad() {
     const waitForConnection = new Promise((resolve) => {
       const checkConnection = setInterval(() => {
-        if (GeneralVariablesStore.isDatabaseLoaded && GeneralVariablesStore.isWebsocketConnected) {
+        if (
+          GeneralVariablesStore.isDatabaseLoaded &&
+          GeneralVariablesStore.isWebsocketConnected &&
+          GeneralVariablesStore.isMoonrakerConnected
+        ) {
           clearInterval(checkConnection)
           resolve()
         }
@@ -25,7 +31,7 @@ export const usePrinterStore = defineStore('printer', () => {
         subscribeToPrinterInfo()
         getHistoryTemperatures()
         getPrinterObjects()
-        setLED()
+        gCodeStore.startLED()
         console.log('Printer Subscribed')
       })
       .catch((error) => {
@@ -39,21 +45,21 @@ export const usePrinterStore = defineStore('printer', () => {
     const hotendFan = data['heater_fan hotend_fan']
     const layerBlower = data['fan_generic layer_blower']
     const auxBlower = data['fan_generic aux_blower_1']
-    const led = data['fan_generic my_led']
-    const endStop_standard_config = data['filament_switch_sensor mode_standard']
-    const endStop_45_degrees_config = data['filament_switch_sensor mode_45_degrees']
+    const led = data['output_pin my_led']
+    const endStop_standard = data['filament_switch_sensor mode_standard']
+    const endStop_45_degrees = data['filament_switch_sensor mode_45_degrees']
     const endStop_filament_cut = data['filament_switch_sensor cutting_sensor']
     const endStop_filament = data['filament_switch_sensor filament']
+    const endStop_door = data['filament_switch_sensor door']
 
     //End stops
-    if (endStop_standard_config) {
-      GeneralVariablesStore.printerConfig.position_standard =
-        endStop_standard_config.filament_detected
+    if (endStop_standard) {
+      GeneralVariablesStore.printerConfig.position_standard = endStop_standard.filament_detected
       GeneralVariablesStore.checkPrinterConfig()
     }
 
-    if (endStop_45_degrees_config) {
-      GeneralVariablesStore.printerConfig.position_45 = endStop_45_degrees_config.filament_detected
+    if (endStop_45_degrees) {
+      GeneralVariablesStore.printerConfig.position_45 = endStop_45_degrees.filament_detected
       GeneralVariablesStore.checkPrinterConfig()
     }
 
@@ -63,6 +69,10 @@ export const usePrinterStore = defineStore('printer', () => {
 
     if (endStop_filament_cut) {
       GeneralVariablesStore.controlStatus.filament_cut = endStop_filament_cut.filament_detected
+    }
+
+    if (endStop_door) {
+      GeneralVariablesStore.controlStatus.door_sensor = endStop_door.filament_detected
     }
 
     // Update print_stats
@@ -202,13 +212,12 @@ export const usePrinterStore = defineStore('printer', () => {
 
     // Update LED
     if (led) {
-      if (led.speed > 0) {
-        GeneralVariablesStore.controlStatus.led = true
-      } else {
+      if (led.value == 1) {
         GeneralVariablesStore.controlStatus.led = false
+      } else {
+        GeneralVariablesStore.controlStatus.led = true
       }
     }
-
     GeneralVariablesStore.isPrinterSubscribe = true
   }
 
@@ -244,11 +253,13 @@ export const usePrinterStore = defineStore('printer', () => {
           'fan_generic aux_blower_1': ['speed'],
           'fan_generic aux_blower_2': ['speed'],
           'fan_generic aux_blower_3': ['speed'],
-          'fan_generic my_led': ['speed'],
+          'output_pin my_led': ['value'],
           'filament_switch_sensor mode_standard': null,
           'filament_switch_sensor mode_45_degrees': null,
           'filament_switch_sensor cutting_sensor': null,
           'filament_switch_sensor filament': null,
+          'filament_switch_sensor door': null,
+          probe: ['last_z_result'],
         },
       })
       .then((response) => {
@@ -283,424 +294,10 @@ export const usePrinterStore = defineStore('printer', () => {
       })
   }
 
-  //Actions
-  function setLayerFanSpeed(speed_change) {
-    // Ensure the fan value stays within 0–1
-    const speed = Math.min(1, Math.max(0, speed_change))
-
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: `SET_FAN_SPEED FAN=layer_blower SPEED=${speed}`,
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to set Layer Blower fan speed: ' + error.message)
-      })
-  }
-
-  function setAuxBlowerFanSpeed(speed_change) {
-    // Ensure the fan value stays within 0–1
-    const speed = Math.min(1, Math.max(0, speed_change))
-
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: `SET_FAN_SPEED FAN=aux_blower_1 SPEED=${speed}`,
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to set Aux Blower 1: ' + error.message)
-      })
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: `SET_FAN_SPEED FAN=aux_blower_2 SPEED=${speed}`,
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to set Aux Blower 2: ' + error.message)
-      })
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: `SET_FAN_SPEED FAN=aux_blower_3 SPEED=${speed}`,
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to set Aux Blower 3: ' + error.message)
-      })
-  }
-
-  function setBedTemperature(target_temperature) {
-    const maxBedTemp = GeneralVariablesStore.database.motion.default_max_bed_temp.value || 120
-    if (target_temperature > maxBedTemp) {
-      target_temperature = maxBedTemp
-    }
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: `SET_HEATER_TEMPERATURE HEATER=heater_bed TARGET=${target_temperature}`,
-      })
-      .then(() => {
-        if (target_temperature > 0) {
-          GeneralVariablesStore.temperatureStatus.bed_status_temp = true
-        } else {
-          GeneralVariablesStore.temperatureStatus.bed_status_temp = false
-        }
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to set bed temperature: ' + error.message)
-      })
-  }
-
-  function setHotendTemperature(target_temperature) {
-    const maxHotendTemp = GeneralVariablesStore.database.motion.default_max_hotend_temp.value || 350
-    if (target_temperature > maxHotendTemp) {
-      target_temperature = maxHotendTemp
-    }
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: `SET_HEATER_TEMPERATURE HEATER=extruder TARGET=${target_temperature}`,
-      })
-      .then(() => {
-        GeneralVariablesStore.temperatureStatus.hotend_status_temp = true
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to set toolhead temperature: ' + error.message)
-      })
-  }
-
-  function offBedTemperature() {
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: `SET_HEATER_TEMPERATURE HEATER=heater_bed TARGET=0`,
-      })
-      .then(() => {
-        GeneralVariablesStore.temperatureStatus.bed_status_temp = false
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed turn off bed temperature: ' + error.message)
-      })
-  }
-
-  function offHotendTemperature() {
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: `SET_HEATER_TEMPERATURE HEATER=extruder TARGET=0`,
-      })
-      .then(() => {
-        GeneralVariablesStore.temperatureStatus.hotend_status_temp = false
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed turn off toolhead temperature: ' + error.message)
-      })
-  }
-
-  function offHeaters() {
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: `TURN_OFF_HEATERS`,
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed turn off heaters: ' + error.message)
-      })
-  }
-
-  function setAbsoluteAxes() {
-    return new Promise((resolve, reject) => {
-      websocketStore
-        .sendMessage('printer.gcode.script', {
-          script: `G90`,
-        })
-        .then(() => resolve())
-        .catch((error) => {
-          console.error('Failed set absolute axes position: ' + error.message)
-          reject(error)
-        })
-    })
-  }
-
-  function setRelativeAxes() {
-    return new Promise((resolve, reject) => {
-      websocketStore
-        .sendMessage('printer.gcode.script', {
-          script: `G91`,
-        })
-        .then(() => resolve())
-        .catch((error) => {
-          console.error('Failed set relative axes position: ' + error.message)
-          reject(error)
-        })
-    })
-  }
-
-  function setHomeX() {
-    return new Promise((resolve, reject) => {
-      websocketStore
-        .sendMessage('printer.gcode.script', {
-          script: 'G28 X',
-        })
-        .then(() => resolve())
-        .catch((error) => {
-          ModalStore.showErrorModal('Failed to home X Axes: ' + error.message)
-          reject(error)
-        })
-    })
-  }
-
-  function setHomeY() {
-    return new Promise((resolve, reject) => {
-      websocketStore
-        .sendMessage('printer.gcode.script', {
-          script: 'G28 Y',
-        })
-        .then(() => resolve())
-        .catch((error) => {
-          ModalStore.showErrorModal('Failed to home Y Axes: ' + error.message)
-          reject(error)
-        })
-    })
-  }
-
-  function setHomeFull() {
-    return new Promise((resolve, reject) => {
-      websocketStore
-        .sendMessage('printer.gcode.script', {
-          script: 'G28',
-        })
-        .then(() => resolve())
-        .catch((error) => {
-          ModalStore.showErrorModal('Error during homing: ' + error.message)
-          reject(error)
-        })
-    })
-  }
-
-  function moveXaxes(
-    distance,
-    speed = GeneralVariablesStore.database.motion.default_XY_speed.value,
-  ) {
-    return new Promise((resolve, reject) => {
-      const newPosition =
-        Math.round(GeneralVariablesStore.controlStatus.current_position[0]) + distance
-      const position = Math.min(
-        GeneralVariablesStore.controlStatus.max_print_size[0],
-        Math.max(0, newPosition),
-      )
-
-      websocketStore
-        .sendMessage('printer.gcode.script', {
-          script: `G0 X${position} F${speed}`,
-        })
-        .then(() => resolve())
-        .catch((error) => {
-          ModalStore.showErrorModal('Failed to move X-axis: ' + error.message)
-          reject(error)
-        })
-    })
-  }
-
-  function moveYaxes(
-    distance,
-    speed = GeneralVariablesStore.database.motion.default_XY_speed.value,
-  ) {
-    return new Promise((resolve, reject) => {
-      const newPosition =
-        Math.round(GeneralVariablesStore.controlStatus.current_position[1]) + distance
-      const position = Math.min(
-        GeneralVariablesStore.controlStatus.max_print_size[1],
-        Math.max(0, newPosition),
-      )
-
-      websocketStore
-        .sendMessage('printer.gcode.script', {
-          script: `G0 Y${position} F${speed}`,
-        })
-        .then(() => resolve())
-        .catch((error) => {
-          ModalStore.showErrorModal('Failed to move Y-axis: ' + error.message)
-          reject(error)
-        })
-    })
-  }
-
-  function moveXYAbsoluteAxes(
-    positionX,
-    positionY,
-    speed = GeneralVariablesStore.database.motion.default_XY_speed.value,
-  ) {
-    return new Promise((resolve, reject) => {
-      const new_positionX = Math.min(
-        GeneralVariablesStore.controlStatus.max_print_size[0],
-        Math.max(0, positionX),
-      )
-
-      const new_positionY = Math.min(
-        GeneralVariablesStore.controlStatus.max_print_size[1],
-        Math.max(0, positionY),
-      )
-
-      websocketStore
-        .sendMessage('printer.gcode.script', {
-          script: `G0 X${new_positionX} Y${new_positionY} F${speed}`,
-        })
-        .then(() => resolve())
-        .catch((error) => {
-          ModalStore.showErrorModal('Failed to move XY-axis: ' + error.message)
-          reject(error)
-        })
-    })
-  }
-
-  function moveZaxes(
-    distance,
-    speed = GeneralVariablesStore.database.motion.default_Z_speed.value,
-  ) {
-    return new Promise((resolve, reject) => {
-      const newPosition =
-        Math.round(GeneralVariablesStore.controlStatus.current_position[2]) + distance
-      const position = Math.min(
-        GeneralVariablesStore.controlStatus.max_print_size[2],
-        Math.max(0, newPosition),
-      )
-
-      websocketStore
-        .sendMessage('printer.gcode.script', {
-          script: `G0 Z${position} F${speed}`,
-        })
-        .then(() => resolve())
-        .catch((error) => {
-          ModalStore.showErrorModal('Failed to move Z-axis: ' + error.message)
-          reject(error)
-        })
-    })
-  }
-
-  function moveExtruder(
-    distance,
-    speed = GeneralVariablesStore.database.motion.default_extruder_speed.value,
-  ) {
-    return new Promise((resolve, reject) => {
-      const newExtruderPosition =
-        Math.round(GeneralVariablesStore.controlStatus.current_position[3]) + distance
-
-      websocketStore
-        .sendMessage('printer.gcode.script', {
-          script: `G1 E${newExtruderPosition} F${speed}`,
-        })
-        .then(() => resolve())
-        .catch((error) => {
-          ModalStore.showErrorModal('Failed to move extruder: ' + error.message)
-          reject(error)
-        })
-    })
-  }
-
-  function moveBelt(
-    distance,
-    speed = GeneralVariablesStore.database.motion.default_belt_speed.value,
-  ) {
-    return new Promise((resolve, reject) => {
-      websocketStore
-        .sendMessage('printer.gcode.script', {
-          script: `MANUAL_STEPPER STEPPER=belt MOVE=${distance} SPEED=${speed}`,
-        })
-        .then(() => {
-          websocketStore
-            .sendMessage('printer.gcode.script', {
-              script: `MANUAL_STEPPER STEPPER=belt SET_POSITION=0`,
-            })
-            .then(() => resolve())
-            .catch((error) => {
-              ModalStore.showErrorModal('Failed during belt motion: ' + error.message)
-              reject(error)
-            })
-        })
-        .catch((error) => {
-          ModalStore.showErrorModal('Failed to move belt: ' + error.message)
-          reject(error)
-        })
-    })
-  }
-
-  function setLED() {
-    if (GeneralVariablesStore.controlStatus.led == false) {
-      websocketStore
-        .sendMessage('printer.gcode.script', {
-          script: `SET_FAN_SPEED FAN="my_led" SPEED=1`,
-        })
-        .catch((error) => {
-          ModalStore.showErrorModal('Failed to turn on LED: ' + error.message)
-        })
-    } else {
-      websocketStore
-        .sendMessage('printer.gcode.script', {
-          script: `SET_FAN_SPEED FAN="my_led" SPEED=0`,
-        })
-        .catch((error) => {
-          ModalStore.showErrorModal('Failed to turn on LED: ' + error.message)
-        })
-    }
-  }
-
-  function zTilt() {
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: 'Z_TILT_ADJUST',
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to execute Z_TILT_ADJUST: ' + error.message)
-      })
-  }
-
-  // Calibration functions
-  async function calibrationHomingPrecision() {
-    for (let i = 0; i < 5; i++) {
-      await setHomeFull()
-      console.log(`Homing iteration ${i + 1}`)
-      await new Promise((resolve) => setTimeout(resolve, 5000))
-    }
-    ModalStore.closeModalSuccess('Completed homing precision check')
-  }
-
-  async function calibrationXYPrecision(repetitions) {
-    let speed = 18000
-    await setHomeX()
-    await setHomeY()
-    await setAbsoluteAxes()
-    console.log('Set absolute axes.')
-    for (let i = 1; i <= repetitions; i++) {
-      await moveXYAbsoluteAxes(10, 10, speed)
-      await moveXYAbsoluteAxes(120, 120, speed)
-      await moveXYAbsoluteAxes(10, 10, speed)
-      await moveXYAbsoluteAxes(120, 120, speed)
-      await moveXYAbsoluteAxes(10, 10, speed)
-      await moveXYAbsoluteAxes(120, 120, speed)
-      console.log(`XY ${i} repetition at ${speed} mm/min`)
-      await new Promise((resolve) => setTimeout(resolve, 10000))
-    }
-    await setRelativeAxes()
-    console.log('relative axes set')
-    ModalStore.showSuccessModal('Completed homing precision check')
-  }
-
   return {
     //getters
     initPrinterLoad,
     getPrinterObjects,
     handlePrinterData,
-    //actions
-    setLayerFanSpeed,
-    setAuxBlowerFanSpeed,
-    setHotendTemperature,
-    setBedTemperature,
-    offBedTemperature,
-    offHotendTemperature,
-    offHeaters,
-    setHomeX,
-    setHomeY,
-    moveXYAbsoluteAxes,
-    setHomeFull,
-    moveXaxes,
-    moveYaxes,
-    moveZaxes,
-    moveExtruder,
-    moveBelt,
-    setLED,
-    zTilt,
-    calibrationHomingPrecision,
-    calibrationXYPrecision,
   }
 })

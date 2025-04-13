@@ -25,6 +25,7 @@ export const useServerInfoStore = defineStore('ServerInfo', () => {
         getServerStatus()
         getPrinterStatus()
         getUSB()
+        GeneralVariablesStore.isMoonrakerConnected = true
         console.log('Server Initialized')
       })
       .catch((error) => {
@@ -107,24 +108,23 @@ export const useServerInfoStore = defineStore('ServerInfo', () => {
     window.location.reload()
   }
 
-  function changePrinterCfg(source, destination) {
-    websocketStore
-      .sendMessage('server.files.copy', {
-        source: source,
-        dest: destination,
-      })
-      .then(() => {
-        GeneralVariablesStore.printer_config_change_error = false
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to set printer.cfg file: ' + error.message)
-      })
-  }
+  // function changePrinterCfg(source, destination) {
+  //   websocketStore
+  //     .sendMessage('server.files.copy', {
+  //       source: source,
+  //       dest: destination,
+  //     })
+  //     .then(() => {
+  //       GeneralVariablesStore.printer_config_change_error = false
+  //     })
+  //     .catch((error) => {
+  //       ModalStore.showErrorModal('Failed to set printer.cfg file: ' + error.message)
+  //     })
+  // }
 
   return {
     initServiceLoad,
     emergencyStop,
     resetFirmware,
-    changePrinterCfg,
   }
 })

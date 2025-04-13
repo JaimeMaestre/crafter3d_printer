@@ -45,7 +45,7 @@
           <font-awesome-icon
             :icon="['fas', 'circle']"
             class="mr_8"
-            :class="GeneralVariablesStore.controlStatus.filament_sensor ? 'font_green' : 'font_red'"
+            :class="GeneralVariablesStore.controlStatus.door_sensor ? 'font_green' : 'font_red'"
           />
         </td>
       </tr>

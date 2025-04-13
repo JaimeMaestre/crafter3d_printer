@@ -12,6 +12,12 @@
     <ErrorModal />
     <SuccessModal />
     <GeneralLoading />
+    <GeneralError />
+    <GeneralSucess />
+    <WebsocketError />
+    <AddWifi />
+    <ForgetWifi />
+    <ProbeAccuracyModal />
 
     <div
       class="drag_container"
@@ -38,6 +44,11 @@ import PrinterServerError from '@/components/Modals/PrinterServerError.vue'
 import WebsocketError from '@/components/Modals/WebsocketError.vue'
 import { usePrintFilesStore } from '@/stores/usePrintFilesStore'
 import { ref } from 'vue'
+import GeneralError from '@/components/Modals/GeneralError.vue'
+import GeneralSucess from '@/components/Modals/GeneralSucess.vue'
+import AddWifi from '@/components/Modals/addWifi.vue'
+import ForgetWifi from '@/components/Modals/forgetWifi.vue'
+import ProbeAccuracyModal from '@/components/Modals/ProbeAccuracyModal.vue'
 
 const isDragging = ref(false)
 const PrintFilesStore = usePrintFilesStore()

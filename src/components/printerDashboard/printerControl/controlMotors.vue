@@ -11,7 +11,7 @@
           <button class="btn button_primary" @click="move_X(-1)">-X</button>
           <button
             class="btn"
-            @click="home_XY()"
+            @click="gCodeStore.setHomeFull()"
             :class="{
               'btn button_primary': GeneralVariablesStore.controlStatus.homed_axes.includes('xy'),
               'btn button_primary_empty':
@@ -33,7 +33,7 @@
         </button>
         <button
           class="btn mt_8"
-          @click="printerStore.setHomeFull()"
+          @click="gCodeStore.setHomeFull()"
           :class="{
             'btn button_primary': GeneralVariablesStore.controlStatus.homed_axes.includes('z'),
             'btn button_primary_empty':
@@ -93,17 +93,22 @@
         100mm
       </button>
     </div>
+    <div class="mt_20">
+      <button class="btn button_primary_empty w_100" @click="gCodeStore.disableMotors()">
+        <font-awesome-icon :icon="['fas', 'virus-slash']" class="mr_8" /> Disable Motors
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { useGeneralVariablesStore } from '@/stores/useGeneralVariablesStore'
-import { usePrinterStore } from '@/stores/usePrinterStore'
+import { useGcodeStore } from '@/stores/useGcodeStore'
 import { ref } from 'vue'
 
 // Variables
 const GeneralVariablesStore = useGeneralVariablesStore()
-const printerStore = usePrinterStore()
+const gCodeStore = useGcodeStore()
 const distance = ref(5)
 
 // Methods
@@ -111,21 +116,16 @@ const setDistance = (value) => {
   distance.value = value
 }
 
-const home_XY = () => {
-  printerStore.setHomeX()
-  printerStore.setHomeY()
-}
-
 const move_Y = (direction) => {
-  printerStore.moveYaxes(distance.value * direction)
+  gCodeStore.moveYaxes(distance.value * direction)
 }
 
 const move_X = (direction) => {
-  printerStore.moveXaxes(distance.value * direction)
+  gCodeStore.moveXaxes(distance.value * direction)
 }
 
 const move_Z = (direction) => {
-  printerStore.moveZaxes(distance.value * direction)
+  gCodeStore.moveZaxes(distance.value * direction)
 }
 
 const move_Ext = (direction) => {
@@ -133,12 +133,12 @@ const move_Ext = (direction) => {
   if (distance_to_move > 10) {
     distance_to_move = 10
   }
-  if (distance.value) printerStore.moveExtruder(distance_to_move * direction)
+  if (distance.value) gCodeStore.moveExtruder(distance_to_move * direction)
 }
 
 const move_Belt = (direction) => {
   console.log(distance.value * direction)
-  printerStore.moveBelt(distance.value * direction)
+  gCodeStore.moveBelt(distance.value * direction)
 }
 </script>
 

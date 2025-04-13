@@ -77,6 +77,18 @@ export const useJobQueueStore = defineStore('jobQueue', () => {
       })
   }
 
+  function printFile(filename) {
+    websocketStore.sendMessage('printer.print.start', { filename: filename }).catch((error) => {
+      modalStore.showErrorModal('Unable to start printing: ' + error.message)
+    })
+  }
+
+  function cancelPrint() {
+    websocketStore.sendMessage('printer.print.cancel').catch((error) => {
+      modalStore.showErrorModal('Unable to start printing: ' + error.message)
+    })
+  }
+
   function startQueue() {
     websocketStore
       .sendMessage('server.job_queue.start')
@@ -106,5 +118,7 @@ export const useJobQueueStore = defineStore('jobQueue', () => {
     pauseQueue,
     startQueue,
     jobQueueJump,
+    printFile,
+    cancelPrint,
   }
 })
