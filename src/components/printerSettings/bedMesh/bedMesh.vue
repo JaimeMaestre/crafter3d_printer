@@ -12,12 +12,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, nextTick } from 'vue'
+import { ref, onMounted, watch, nextTick, onUnmounted } from 'vue'
 import { useGeneralVariablesStore } from '@/stores/useGeneralVariablesStore'
-import Plotly from 'plotly.js-dist'
+import * as echarts from 'echarts'
+import 'echarts-gl'
 
 const GeneralVariablesStore = useGeneralVariablesStore()
 const hasMeshData = ref(false)
+let chart = null
 
 async function updatePlot() {
   const bedMesh = GeneralVariablesStore.controlStatus.bed_mesh
@@ -33,62 +35,122 @@ async function updatePlot() {
   await nextTick()
 
   try {
-    // The bed mesh data is already in the correct format for Plotly
-    const data = bedMesh
-
-    const layout = {
-      title: 'Bed Mesh Visualization',
-      scene: {
-        xaxis: {
-          title: 'X Position',
-          gridcolor: '#444',
-          zerolinecolor: '#666',
-          color: '#fff',
-        },
-        yaxis: {
-          title: 'Y Position',
-          gridcolor: '#444',
-          zerolinecolor: '#666',
-          color: '#fff',
-        },
-        zaxis: {
-          title: 'Height (mm)',
-          gridcolor: '#444',
-          zerolinecolor: '#666',
-          color: '#fff',
-          range: [-1, 1],
-        },
-        bgcolor: '#1a1a1a',
-        camera: {
-          eye: { x: 1.5, y: 1.5, z: 0.5 },
-          center: { x: 0, y: 0, z: 0 },
-        },
-      },
-      paper_bgcolor: '#1a1a1a',
-      plot_bgcolor: '#1a1a1a',
-      font: {
-        color: '#fff',
-      },
-      margin: {
-        l: 0,
-        r: 0,
-        b: 0,
-        t: 40,
-        pad: 0,
-      },
-      autosize: true,
-      width: null,
-      height: null,
+    if (!chart) {
+      chart = echarts.init(document.getElementById('bedMeshPlot'))
     }
 
-    const config = {
-      responsive: true,
-      displayModeBar: true,
-      displaylogo: false,
-      useResizeHandler: true,
+    // Get the first bed mesh object which contains the mesh data
+    const meshData = bedMesh[0]
+    const z = meshData.z
+    const x = meshData.x
+    const y = meshData.y
+
+    // Convert the data to the format ECharts expects
+    const data = []
+    for (let i = 0; i < y.length; i++) {
+      for (let j = 0; j < x.length; j++) {
+        data.push([x[j], y[i], z[i][j]])
+      }
     }
 
-    Plotly.newPlot('bedMeshPlot', data, layout, config)
+    const option = {
+      backgroundColor: '#1a1a1a',
+      tooltip: {
+        formatter: function (params) {
+          return `X: ${params.data[0].toFixed(2)}<br/>Y: ${params.data[1].toFixed(2)}<br/>Z: ${params.data[2].toFixed(3)}mm`
+        },
+      },
+      visualMap: {
+        show: true,
+        dimension: 2,
+        min: -1,
+        max: 1,
+        inRange: {
+          color: [
+            '#313695',
+            '#4575b4',
+            '#74add1',
+            '#abd9e9',
+            '#e0f3f8',
+            '#ffffbf',
+            '#fee090',
+            '#fdae61',
+            '#f46d43',
+            '#d73027',
+            '#a50026',
+          ],
+        },
+        textStyle: {
+          color: '#fff',
+        },
+      },
+      xAxis3D: {
+        type: 'value',
+        name: 'X Position',
+        nameTextStyle: { color: '#fff' },
+        axisLine: { lineStyle: { color: '#666' } },
+        axisLabel: { color: '#fff' },
+      },
+      yAxis3D: {
+        type: 'value',
+        name: 'Y Position',
+        nameTextStyle: { color: '#fff' },
+        axisLine: { lineStyle: { color: '#666' } },
+        axisLabel: { color: '#fff' },
+      },
+      zAxis3D: {
+        type: 'value',
+        name: 'Height (mm)',
+        nameTextStyle: { color: '#fff' },
+        axisLine: { lineStyle: { color: '#666' } },
+        axisLabel: { color: '#fff' },
+        min: -1,
+        max: 1,
+      },
+      grid3D: {
+        boxWidth: 200,
+        boxHeight: 200,
+        boxDepth: 200,
+        viewControl: {
+          // Initial camera position
+          alpha: 45,
+          beta: 30,
+          distance: 300,
+        },
+        light: {
+          main: {
+            intensity: 1.2,
+          },
+          ambient: {
+            intensity: 0.3,
+          },
+        },
+      },
+      series: [
+        {
+          type: 'surface',
+          data: data,
+          shading: 'color',
+          itemStyle: {
+            opacity: 0.8,
+          },
+          emphasis: {
+            itemStyle: {
+              opacity: 1,
+            },
+          },
+          wireframe: {
+            show: true,
+            lineStyle: {
+              color: '#666',
+              width: 1,
+            },
+          },
+        },
+      ],
+    }
+
+    chart.setOption(option)
   } catch (error) {
     console.error('Error plotting bed mesh:', error)
     hasMeshData.value = false
@@ -106,6 +168,16 @@ watch(
 
 onMounted(() => {
   updatePlot()
+  window.addEventListener('resize', () => {
+    chart?.resize()
+  })
+})
+
+onUnmounted(() => {
+  chart?.dispose()
+  window.removeEventListener('resize', () => {
+    chart?.resize()
+  })
 })
 </script>
 

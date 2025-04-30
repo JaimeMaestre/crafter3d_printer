@@ -25,7 +25,6 @@
     "echarts-gl": "^2.0.9",
     "pinia": "^2.2.6",
     "plotly.js": "^3.0.1",
-    "plotly.js-dist": "^3.0.1",
     "thememirror": "^2.0.1",
     "three": "^0.171.0",
     "vue": "^3.5.13",
