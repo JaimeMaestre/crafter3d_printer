@@ -9,8 +9,8 @@
           :src="
             GeneralVariablesStore.printerConfig.position_standard &&
             !GeneralVariablesStore.printerConfig.position_45
-              ? '/public/images/printer_90.png'
-              : '/public/images/printer_45.png'
+              ? '/images/printer_90.png'
+              : '/images/printer_45.png'
           "
           alt="Crafter 3D printer standard"
         />

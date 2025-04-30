@@ -57,7 +57,7 @@
               }}
             </td>
             <td class="image" :title="'45 Degrees'">
-              <img src="/public/images/printer_45.png" alt="print file overview" />
+              <img src="/public/images/printer_90.png" alt="print file overview" />
             </td>
             <td class="file_options">
               <filesDropdown :job_info="job" />
