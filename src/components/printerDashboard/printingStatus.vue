@@ -1,7 +1,14 @@
 <template>
   <div class="box_content_small">
     <div class="box_content_header">
-      <div><font-awesome-icon :icon="['fas', 'eye']" class="mr_8" /> Printer Status</div>
+      <div>
+        <font-awesome-icon :icon="['fas', 'eye']" class="mr_8" /> Printer Status -
+        <span class="font_italic"
+          >{{ GeneralVariablesStore.printJobStatus.state.toUpperCase() }} ({{
+            (GeneralVariablesStore.printJobStatus.progress * 100).toFixed(0)
+          }}%)</span
+        >
+      </div>
       <div
         v-if="box_visible_printingStatus === false"
         class="open_button"
@@ -43,7 +50,11 @@ import jobPercentageActions from '@/components/printerDashboard/printingStatus/j
 import lifeInformation from '@/components/printerDashboard/printingStatus/lifeInformation.vue'
 import jobSpeeds from '@/components/printerDashboard/printingStatus/jobSpeeds.vue'
 import jobQueue from '@/components/printerDashboard/printingStatus/jobQueue.vue'
+import { useGeneralVariablesStore } from '@/stores/useGeneralVariablesStore'
 import { ref } from 'vue'
+
+// Variables
+const GeneralVariablesStore = useGeneralVariablesStore()
 
 const box_visible_printingStatus = ref(true)
 </script>

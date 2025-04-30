@@ -3,14 +3,16 @@ import { useWebsocketStore } from './useWebsocketStore'
 import { useModalStore } from './useModalStore'
 import { useGeneralVariablesStore } from './useGeneralVariablesStore'
 
-export const useServerInfoStore = defineStore('ServerInfo', () => {
+export const useMoonrakerStore = defineStore('moonraker', () => {
   // Imported Variables
   const websocketStore = useWebsocketStore()
   const ModalStore = useModalStore()
   const GeneralVariablesStore = useGeneralVariablesStore()
 
+  /////////////////////////////////
   // Initialize
-  function initServiceLoad() {
+  /////////////////////////////////
+  function initMoonraker() {
     const waitForConnection = new Promise((resolve) => {
       const checkConnection = setInterval(() => {
         if (GeneralVariablesStore.isWebsocketConnected) {
@@ -33,23 +35,26 @@ export const useServerInfoStore = defineStore('ServerInfo', () => {
       })
   }
 
-  // Helpers
-  function updateServerStatus(data) {
-    GeneralVariablesStore.mcuStatus.klippy = data.klippy_connected || 'Unknown'
+  /////////////////////////////////
+  // Handle
+  /////////////////////////////////
+  function handleMoonrakerStatus(data) {
+    GeneralVariablesStore.mcuStatus.klippy = data.klippy_connected || false
     GeneralVariablesStore.mcuStatus.warnnings = data.warnnings || ''
+    GeneralVariablesStore.mcuStatus.moonraker_version = data.moonraker_version || ''
   }
 
-  function updatePrinterStatus(data) {
+  function handlePrinterStatus(data) {
     GeneralVariablesStore.mcuStatus.mcu_state = data.state || 'Unknown'
     GeneralVariablesStore.mcuStatus.status = data.state_message || ''
     GeneralVariablesStore.mcuStatus.hostname = data.hostname || ''
-    GeneralVariablesStore.mcuStatus.software = data.software_version || ''
+    GeneralVariablesStore.mcuStatus.klipper_version = data.software_version || ''
   }
 
-  function updateListUSB(data) {
-    GeneralVariablesStore.listUSB.length = 0
+  function handleListUSB(data) {
+    GeneralVariablesStore.systemStats.listUSB.length = 0
     data.forEach((device) => {
-      GeneralVariablesStore.listUSB.push({
+      GeneralVariablesStore.systemStats.listUSB.push({
         device_id: device.device_num || 'Unknown',
         product: device.product || 'Unknown',
         manufacturer: device.manufacturer || 'Unknown',
@@ -59,12 +64,14 @@ export const useServerInfoStore = defineStore('ServerInfo', () => {
     })
   }
 
+  /////////////////////////////////
   // Getters
+  /////////////////////////////////
   function getServerStatus() {
     websocketStore
       .sendMessage('server.info')
       .then((response) => {
-        updateServerStatus(response.result)
+        handleMoonrakerStatus(response.result)
       })
       .catch((error) => {
         console.log('Error getting Server status: ' + error.message)
@@ -75,7 +82,7 @@ export const useServerInfoStore = defineStore('ServerInfo', () => {
     websocketStore
       .sendMessage('printer.info')
       .then((response) => {
-        updatePrinterStatus(response.result)
+        handlePrinterStatus(response.result)
       })
       .catch((error) => {
         console.log('Error getting Printer status: ' + error.message)
@@ -86,14 +93,16 @@ export const useServerInfoStore = defineStore('ServerInfo', () => {
     websocketStore
       .sendMessage('machine.peripherals.usb')
       .then((response) => {
-        updateListUSB(response.result.usb_devices)
+        handleListUSB(response.result.usb_devices)
       })
       .catch((error) => {
         console.log('Error getting USB list: ' + error.message)
       })
   }
 
+  /////////////////////////////////
   // Actions
+  /////////////////////////////////
   function emergencyStop() {
     websocketStore.sendMessage('printer.emergency_stop').catch((error) => {
       ModalStore.showErrorModal('Emergency stop failure: ' + error.message)
@@ -123,7 +132,7 @@ export const useServerInfoStore = defineStore('ServerInfo', () => {
   // }
 
   return {
-    initServiceLoad,
+    initMoonraker,
     emergencyStop,
     resetFirmware,
   }

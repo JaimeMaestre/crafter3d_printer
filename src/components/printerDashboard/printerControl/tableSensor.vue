@@ -39,16 +39,6 @@
           />
         </td>
       </tr>
-      <tr>
-        <td class="title_name font_ellipsis" title="Standard Config">Door</td>
-        <td>
-          <font-awesome-icon
-            :icon="['fas', 'circle']"
-            class="mr_8"
-            :class="GeneralVariablesStore.controlStatus.door_sensor ? 'font_green' : 'font_red'"
-          />
-        </td>
-      </tr>
     </tbody>
   </table>
 </template>

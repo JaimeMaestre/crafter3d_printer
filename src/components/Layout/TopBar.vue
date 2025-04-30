@@ -10,7 +10,7 @@
       <div class="font_size_14 printer_name">
         <div class="printer_code">
           {{
-            GeneralVariablesStore.hostname
+            GeneralVariablesStore.mcuStatus.hostname
               .replace('.local', '')
               .replace('crafter-m6', 'C3D')
               .toUpperCase()
@@ -57,7 +57,7 @@
     </nav>
     <div class="right_header">
       <div class="mr_16">
-        <button class="btn button_red font_size_14" @click="ServerInfoStore.emergencyStop()">
+        <button class="btn button_red font_size_14" @click="MoonrakerStore.emergencyStop()">
           <font-awesome-icon :icon="['fas', 'circle-exclamation']" class="mr_6" />
           <span class="emergency_mobile">{{ $t('topBar.stop') }}</span>
           <span class="emergency_desktop">{{ $t('topBar.emergency_stop') }}</span>
@@ -88,13 +88,13 @@
 </template>
 
 <script setup>
-import { useServerInfoStore } from '@/stores/useServerInfoStore'
+import { useMoonrakerStore } from '@/stores/useMoonrakerStore'
 import { useGeneralVariablesStore } from '@/stores/useGeneralVariablesStore'
 import { useDatabaseStore } from '@/stores/useDatabaseStore'
 import { useI18n } from 'vue-i18n'
 
 // Variables
-const ServerInfoStore = useServerInfoStore()
+const MoonrakerStore = useMoonrakerStore()
 const GeneralVariablesStore = useGeneralVariablesStore()
 const DatabaseStore = useDatabaseStore()
 const { locale } = useI18n()

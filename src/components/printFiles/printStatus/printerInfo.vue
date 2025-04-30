@@ -59,9 +59,7 @@
             :icon="['fas', 'circle']"
             class="ml_8"
             :class="
-              GeneralVariablesStore.temperatureStatus.bed_target_temp > 0
-                ? 'font_green'
-                : 'font_red'
+              GeneralVariablesStore.temperatureStatus.bed_power > 0 ? 'font_green' : 'font_red'
             "
           />
         </div>
@@ -74,9 +72,7 @@
             :icon="['fas', 'circle']"
             class="ml_8"
             :class="
-              GeneralVariablesStore.temperatureStatus.hotend_target_temp > 0
-                ? 'font_green'
-                : 'font_red'
+              GeneralVariablesStore.temperatureStatus.hotend_power > 0 ? 'font_green' : 'font_red'
             "
           />
         </div>
@@ -89,17 +85,6 @@
             :icon="['fas', 'circle']"
             class="ml_8"
             :class="GeneralVariablesStore.controlStatus.led ? 'font_green' : 'font_red'"
-          />
-        </div>
-      </li>
-      <li>
-        <div class="list_name">Bed Infinite-Z Position</div>
-        <div>
-          {{ GeneralVariablesStore.printerConfig.position_45 ? 'ON' : 'OFF' }}
-          <font-awesome-icon
-            :icon="['fas', 'circle']"
-            class="ml_8"
-            :class="GeneralVariablesStore.printerConfig.position_45 ? 'font_green' : 'font_red'"
           />
         </div>
       </li>

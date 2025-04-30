@@ -55,7 +55,7 @@
             ? GeneralVariablesStore.printJobStatus.filament_used_mm.toFixed(1)
             : (GeneralVariablesStore.printJobStatus.filament_used_mm / 1000).toFixed(1)
         }}
-        {{ GeneralVariablesStore.printJobStatus.filament_used_mm / 1000 < 0 ? 'mm' : 'm' }}
+        {{ GeneralVariablesStore.printJobStatus.filament_used_mm / 1000 < 1 ? 'mm' : 'm' }}
       </div>
     </div>
   </div>

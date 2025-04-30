@@ -1,5 +1,5 @@
 <template>
-  <div v-if="GeneralVariablesStore.probeAccuracyModalVisible" class="modal">
+  <div v-if="ModalStore.probeAccuracyModal" class="modal">
     <div class="modal_container">
       <div class="modal_header">
         <div class="font_size_18_bold">
@@ -9,48 +9,45 @@
         <button
           class="btn font_size_16_bold"
           type="button"
-          @click="GeneralVariablesStore.probeAccuracyModalVisible = false"
+          @click="ModalStore.closeProbeCalibration()"
         >
           X
         </button>
       </div>
 
       <div class="modal_content">
-        <div v-if="GeneralVariablesStore.probeResults">
+        <div v-if="ModalStore.probeResults">
           <div class="result_row">
             <span class="label">Mean:</span>
-            <span class="value">{{ GeneralVariablesStore.probeResults.mean.toFixed(3) }} mm</span>
+            <span class="value">{{ ModalStore.probeResults.mean.toFixed(3) }} mm</span>
           </div>
           <div class="result_row">
             <span class="label">Median:</span>
-            <span class="value">{{ GeneralVariablesStore.probeResults.median.toFixed(3) }} mm</span>
+            <span class="value">{{ ModalStore.probeResults.median.toFixed(3) }} mm</span>
           </div>
           <div class="result_row">
             <span class="label">Standard Deviation:</span>
-            <span class="value">{{ GeneralVariablesStore.probeResults.stddev.toFixed(3) }} mm</span>
+            <span class="value">{{ ModalStore.probeResults.stddev.toFixed(3) }} mm</span>
           </div>
           <div class="result_row">
             <span class="label">Range:</span>
-            <span class="value">{{ GeneralVariablesStore.probeResults.range.toFixed(3) }} mm</span>
+            <span class="value">{{ ModalStore.probeResults.range.toFixed(3) }} mm</span>
           </div>
           <div class="result_row">
             <span class="label">Maximum:</span>
-            <span class="value">{{ GeneralVariablesStore.probeResults.max.toFixed(3) }} mm</span>
+            <span class="value">{{ ModalStore.probeResults.max.toFixed(3) }} mm</span>
           </div>
           <div class="result_row">
             <span class="label">Minimum:</span>
-            <span class="value">{{ GeneralVariablesStore.probeResults.min.toFixed(3) }} mm</span>
+            <span class="value">{{ ModalStore.probeResults.min.toFixed(3) }} mm</span>
           </div>
           <div class="result_row">
             <span class="label">Samples:</span>
-            <span class="value">{{ GeneralVariablesStore.probeResults.samples }}</span>
+            <span class="value">{{ ModalStore.probeResults.samples }}</span>
           </div>
         </div>
         <div v-else>Testing probe accuracy... Please wait.</div>
-        <button
-          class="btn button_primary mt_12"
-          @click="GeneralVariablesStore.probeAccuracyModalVisible = false"
-        >
+        <button class="btn button_primary mt_12" @click="ModalStore.closeProbeCalibration()">
           Close
         </button>
       </div>
@@ -59,10 +56,10 @@
 </template>
 
 <script setup>
-import { useGeneralVariablesStore } from '@/stores/useGeneralVariablesStore'
+import { useModalStore } from '@/stores/useModalStore'
 
 // Variables
-const GeneralVariablesStore = useGeneralVariablesStore()
+const ModalStore = useModalStore()
 </script>
 
 <style scoped>

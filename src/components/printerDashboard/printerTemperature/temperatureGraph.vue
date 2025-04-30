@@ -91,6 +91,18 @@ const chartOptions = ref({
         focus: 'series',
       },
     },
+    {
+      name: 'Electronics',
+      data: [],
+      type: 'line',
+      itemStyle: {
+        color: '#3f64ad',
+      },
+      areaStyle: {},
+      emphasis: {
+        focus: 'series',
+      },
+    },
   ],
 })
 
@@ -109,18 +121,20 @@ const interval = 1000
 watch(
   () => GeneralVariablesStore.temperatureStatus,
   (temperatureStatus) => {
-    if (temperatureStatus.hotend_historic_temp.length > 0 && historyDataInserted.value === false) {
+    if (temperatureStatus.hotend_historic_temp?.length > 0 && historyDataInserted.value === false) {
       timeData.value = Array.from(
         { length: temperatureStatus.hotend_historic_temp.length },
         (_, i) => Date.now() - (temperatureStatus.hotend_historic_temp.length - i - 1) * interval,
       )
-
       chartOptions.value.xAxis.data = timeData.value.map(formatTime)
-      chartOptions.value.series[0].data = temperatureStatus.hotend_historic_temp
-      chartOptions.value.series[1].data = temperatureStatus.bed_historic_temp
-      let maxHotendTemp = Math.max(...chartOptions.value.series[0].data)
-      let maxBedTemp = Math.max(...chartOptions.value.series[1].data)
-      max_temp.value = Math.round(Math.max(maxHotendTemp, maxBedTemp) + 30)
+      chartOptions.value.series[0].data = [...temperatureStatus.hotend_historic_temp]
+      chartOptions.value.series[1].data = [...temperatureStatus.bed_historic_temp]
+      chartOptions.value.series[2].data = [...temperatureStatus.electronics_historic_temp]
+
+      let maxHotendTemp = Math.max(...(chartOptions.value.series[0].data || [0]))
+      let maxBedTemp = Math.max(...(chartOptions.value.series[1].data || [0]))
+      let maxElectronicsTemp = Math.max(...(chartOptions.value.series[2].data || [0]))
+      max_temp.value = Math.round(Math.max(maxHotendTemp, maxBedTemp, maxElectronicsTemp) + 30)
       historyDataInserted.value = true
     } else {
       if (Date.now() - timeData.value[timeData.value.length - 1] > interval) {
@@ -128,17 +142,20 @@ watch(
 
         chartOptions.value.series[0].data.push(temperatureStatus.hotend_current_temp)
         chartOptions.value.series[1].data.push(temperatureStatus.bed_current_temp)
+        chartOptions.value.series[2].data.push(temperatureStatus.electronics_temp)
 
         // Ensure the data length is limited to the latest 300 points
         if (timeData.value.length > temperatureStatus.maximum_history_values) {
           timeData.value.shift()
           chartOptions.value.series[0].data.shift()
           chartOptions.value.series[1].data.shift()
+          chartOptions.value.series[2].data.shift()
         }
 
-        let maxHotendTemp = Math.max(...chartOptions.value.series[0].data)
-        let maxBedTemp = Math.max(...chartOptions.value.series[1].data)
-        max_temp.value = Math.round(Math.max(maxHotendTemp, maxBedTemp) + 30)
+        let maxHotendTemp = Math.max(...(chartOptions.value.series[0].data || [0]))
+        let maxBedTemp = Math.max(...(chartOptions.value.series[1].data || [0]))
+        let maxElectronicsTemp = Math.max(...(chartOptions.value.series[2].data || [0]))
+        max_temp.value = Math.round(Math.max(maxHotendTemp, maxBedTemp, maxElectronicsTemp) + 30)
 
         chartOptions.value.xAxis.data = timeData.value.map(formatTime)
       }

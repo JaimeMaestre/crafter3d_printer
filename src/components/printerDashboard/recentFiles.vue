@@ -37,7 +37,7 @@
         <thead>
           <tr>
             <th class="image">Img</th>
-            <th class="title_name">Name</th>
+            <th class="file_name">Name</th>
             <th>Cfg</th>
             <th class="file_options">Opt</th>
           </tr>
@@ -45,10 +45,16 @@
         <tbody>
           <tr v-for="(job, index) in GeneralVariablesStore.latestPrintFiles" :key="index">
             <td class="image">
-              <img src="/public/images/printer_90.png" alt="print file overview" />
+              <img :src="job.metadata?.thumbnails || ''" alt="print file overview" />
             </td>
-            <td class="title_name font_complementary font_ellipsis" :title="job.path">
-              {{ job.path.replace(/^gcodes\//, '').replace('.gcode', '') }}
+            <td class="file_name font_complementary" :title="job.path">
+              {{
+                job.path
+                  .replace(/^gcodes\//, '')
+                  .replace('.gcode', '')
+                  .slice(0, 60) +
+                (job.path.replace(/^gcodes\//, '').replace('.gcode', '').length > 60 ? '...' : '')
+              }}
             </td>
             <td class="image" :title="'45 Degrees'">
               <img src="/public/images/printer_45.png" alt="print file overview" />
@@ -111,27 +117,25 @@ table {
   table-layout: fixed;
 }
 
-.title_name {
-  max-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  padding-right: 10px;
+table .file_name {
+  overflow-wrap: anywhere;
+  width: 65%;
 }
 
 .image {
-  width: 60px;
+  width: 15%;
   text-align: center;
 }
 
 .image img {
-  width: 50px;
-  height: 50px;
+  max-width: 50px;
+  max-height: 50px;
   object-fit: contain;
 }
 
 .file_options {
-  width: 40px;
+  width: 5%;
+  padding: 0px;
   text-align: center;
 }
 </style>

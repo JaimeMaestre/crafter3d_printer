@@ -17,7 +17,7 @@
           <button class="btn button_primary" @click="refreshPage">
             <font-awesome-icon :icon="['fas', 'arrows-rotate']" class="mr_8" /> Try again
           </button>
-          <button class="btn button_primary" @click="ServerInfoStore.resetFirmware()">
+          <button class="btn button_primary" @click="MoonrakerStore.resetFirmware()">
             <font-awesome-icon :icon="['fas', 'power-off']" class="mr_8" /> Reset Firmware
           </button>
         </div>
@@ -26,11 +26,11 @@
   </div>
 </template>
 <script setup>
-import { useServerInfoStore } from '@/stores/useServerInfoStore.js'
+import { useMoonrakerStore } from '@/stores/useMoonrakerStore.js'
 import { useGeneralVariablesStore } from '@/stores/useGeneralVariablesStore.js'
 
 // Variables
-const ServerInfoStore = useServerInfoStore()
+const MoonrakerStore = useMoonrakerStore()
 const GeneralVariablesStore = useGeneralVariablesStore()
 
 // Methods

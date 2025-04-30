@@ -15,8 +15,11 @@ export const useModalStore = defineStore('modal', () => {
   const securityModalAddWifi = ref('')
   const visibleModalForgetWifi = ref(false)
   const ssidModalForgetWifi = ref('')
+  const probeAccuracyModal = ref(false)
+  const probeResults = ref(null)
+  const visibleModalBedCalibration = ref(false)
 
-  // Actions
+  //// ERROR ///////
   const showErrorModal = (message) => {
     errorMessage.value = message
     visibleModalError.value = true
@@ -27,6 +30,7 @@ export const useModalStore = defineStore('modal', () => {
     errorMessage.value = ''
   }
 
+  //// SUCCESS ///////
   const showSuccessModal = (message) => {
     successMessage.value = message
     visibleModalSuccess.value = true
@@ -43,6 +47,7 @@ export const useModalStore = defineStore('modal', () => {
     successMessage.value = ''
   }
 
+  //// LOADING ///////
   const showLoadingModal = () => {
     visibleModalLoading.value = true
   }
@@ -51,6 +56,7 @@ export const useModalStore = defineStore('modal', () => {
     visibleModalLoading.value = false
   }
 
+  //// ADD QUEUE ///////
   const showModalAddQueue = (file) => {
     filePath.value = file
     visibleModalAddQueue.value = true
@@ -60,6 +66,7 @@ export const useModalStore = defineStore('modal', () => {
     visibleModalAddQueue.value = false
   }
 
+  //// ADD WIFI ///////
   const showModalAddWifi = (ssid, security) => {
     securityModalAddWifi.value = security
     ssidModalAddWifi.value = ssid
@@ -70,6 +77,7 @@ export const useModalStore = defineStore('modal', () => {
     visibleModalAddWifi.value = false
   }
 
+  //// FORGET WIFI ///////
   const showModalForgetWifi = (ssid) => {
     ssidModalForgetWifi.value = ssid
     visibleModalForgetWifi.value = true
@@ -77,6 +85,24 @@ export const useModalStore = defineStore('modal', () => {
 
   const closeModalForgetWifi = () => {
     visibleModalForgetWifi.value = false
+  }
+
+  //// PROBE CALIBRATION ///////
+  const showProbeCalibration = () => {
+    probeAccuracyModal.value = true
+  }
+
+  const closeProbeCalibration = () => {
+    probeAccuracyModal.value = false
+  }
+
+  //// BED CALIBRATION ///////
+  const showBedCalibration = () => {
+    visibleModalBedCalibration.value = true
+  }
+
+  const closeBedCalibration = () => {
+    visibleModalBedCalibration.value = false
   }
 
   return {
@@ -92,6 +118,9 @@ export const useModalStore = defineStore('modal', () => {
     securityModalAddWifi,
     visibleModalForgetWifi,
     ssidModalForgetWifi,
+    probeAccuracyModal,
+    probeResults,
+    visibleModalBedCalibration,
     showErrorModal,
     showSuccessModal,
     showModalAddQueue,
@@ -104,5 +133,9 @@ export const useModalStore = defineStore('modal', () => {
     closeModalAddWifi,
     showModalForgetWifi,
     closeModalForgetWifi,
+    showProbeCalibration,
+    closeProbeCalibration,
+    showBedCalibration,
+    closeBedCalibration,
   }
 })

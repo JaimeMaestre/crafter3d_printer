@@ -1,95 +1,43 @@
 import { defineStore } from 'pinia'
 import { ref, reactive } from 'vue'
-import { useServerInfoStore } from './useServerInfoStore'
+import { useMoonrakerStore } from './useMoonrakerStore'
 import { useDatabaseStore } from './useDatabaseStore'
 import { useCrafterAPIStore } from './useCrafterAPIStore'
 
 export const useGeneralVariablesStore = defineStore('generalVariables', () => {
-  const ServerInfoStore = useServerInfoStore()
+  const MoonrakerStore = useMoonrakerStore()
   const DatabaseStore = useDatabaseStore()
   const CrafterAPIStore = useCrafterAPIStore()
 
-  // Variables layout
+  //// Variables layout /////
   const side_menu_visibility = ref(false)
   const printerAxesConfigError = ref(false)
 
-  // Moonraker API
-  const hostname = ref('')
+  //// Websocket /////
   const isWebsocketConnected = ref(false)
-  const WebsockeMmessages = reactive([])
+  const WebsockeMessages = reactive([]) //Revisar donde se usa....
 
-  // Variables Moonraker Server
-  const isMoonrakerConnected = ref(false)
-  const mcuStatus = reactive({
-    hostname: '',
-    klippy: '',
-    mcu_state: 'Service not active',
-    status: '',
-    warnnings: [],
-    software: '',
-  })
-
-  // Variables Printer
-  const gcodeHistory = ref([])
-  const printerConfigStandardPosition = ref(true)
-  const isPrinterSubscribe = ref(false)
-  const isHotendTarget = ref(false)
-  const isBedTarget = ref(false)
-  const filamentDiameter = ref(1.75) //mm
-  const filamentDensity = ref(1.24) //g/cm3
-  const printJobStatus = reactive({
-    filename: '',
-    state: 'Unknown',
-    progress: 0,
-    total_duration: 0,
-    print_duration: 0,
-    time_left: 0,
-    filament_used_mm: 0,
-    filament_used_g: 0,
-    total_layer: 0,
-    current_layer: 0,
-    speed_factor: 1,
-    extruder_factor: 1,
-  })
-  const temperatureStatus = reactive({
-    bed_status_temp: false,
-    bed_current_temp: -30,
-    bed_target_temp: 0,
-    bed_historic_temp: [],
-    hotend_status_temp: false,
-    hotend_current_temp: -30,
-    hotend_target_temp: 0,
-    hotend_historic_temp: [],
-    maximum_history_values: 600,
-  })
-  const controlStatus = reactive({
-    max_print_size: [0, 0, 0, 0],
-    min_print_size: [0, 0, 0, 0],
-    live_velocity: 0,
-    live_extruder_velocity: 0,
-    flow_rate: 0, //mm3/s
-    homed_axes: '',
-    max_velocity: 0,
-    max_accel: 0,
-    stalls: 0,
-    current_position: [0, 0, 0, 0],
-    led: false,
-    filament_sensor: false,
-    filament_cut: false,
-    door_sensor: false,
-    low_z_sensor: false,
-  })
-  const fanStatus = reactive({
-    hotend_fan: 0,
-    layer_blower: 0,
-    aux_blower: 0,
-  })
-  const printerConfig = reactive({
-    position_standard: true,
-    position_45: false,
+  // System Stats
+  const systemStats = reactive({
+    cpuTemp: 0, // in Celsius
+    cpuUsage: 0, // percentage
+    memoryUsage: {
+      total: 0, // in kB
+      used: 0, // in kB
+      available: 0, // in kB
+    },
+    network: {
+      wlan0: {
+        bandwidth: 0, // in kB/s
+        received: 0, // in MB
+        transmitted: 0, // in MB
+      },
+    },
+    websocketConnections: 0,
+    listUSB: [],
   })
 
-  // Variable Crafter 3D Database
+  //// Database /////
   const isDatabaseLoaded = ref(false)
   const database = reactive({
     heatProfiles: {
@@ -113,7 +61,7 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
         translationKey: 'z_speed',
       },
       default_extruder_speed: {
-        value: 600, // 600mm/min - 10mm/s
+        value: 300, // 300mm/min - 5mm/s
         unit: 'mm/min',
         icon: 'gears',
         translationKey: 'ext_speed',
@@ -157,38 +105,86 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
     ],
   })
 
-  // Variables Print Files
+  //// Moonraker Server /////
+  const isMoonrakerConnected = ref(false)
+  const mcuStatus = reactive({
+    hostname: '',
+    klippy: '',
+    mcu_state: 'Service not active',
+    status: '',
+    warnnings: [],
+    klipper_version: '',
+    moonraker_version: '',
+  })
+
+  //// Printer /////
+  const gcodeHistory = ref([])
+  const printerConfigStandardPosition = ref(true)
+  const isPrinterSubscribe = ref(false)
+  const filamentDiameter = 1.75 //mm
+  const filamentDensity = 0.00124 //g/mm3
+  const printJobStatus = reactive({
+    filename: '',
+    state: 'standby',
+    progress: 0,
+    total_duration: 0,
+    print_duration: 0,
+    time_left: 0,
+    filament_used_mm: 0,
+    total_layer: 0,
+    current_layer: 0,
+    speed_factor: 1,
+    extruder_factor: 1,
+    job_thumbnail: '',
+  })
+  const temperatureStatus = reactive({
+    bed_power: 0,
+    bed_current_temp: -30.0,
+    bed_target_temp: 0,
+    bed_historic_temp: [],
+    hotend_power: 0,
+    hotend_current_temp: -30.0,
+    hotend_target_temp: 0,
+    hotend_historic_temp: [],
+    maximum_history_values: 600,
+    electronics_temp: -30.0,
+    electronics_historic_temp: [],
+  })
+  const controlStatus = reactive({
+    max_print_size: [0, 0, 0, 0],
+    min_print_size: [0, 0, 0, 0],
+    live_velocity: 0,
+    live_extruder_velocity: 0,
+    flow_rate: 0, //mm3/s
+    homed_axes: '',
+    max_velocity: 0,
+    max_accel: 0,
+    stalls: 0,
+    current_position: [0, 0, 0, 0],
+    led: false,
+    filament_sensor: false,
+    filament_cut: false,
+    door_sensor: false,
+    z_offset: 0,
+    bed_mesh: [],
+  })
+  const fanStatus = reactive({
+    hotend_fan: 0,
+    layer_blower: 0,
+    aux_blower: 0,
+  })
+  const printerConfig = reactive({
+    position_standard: true,
+    position_45: false,
+  })
+
+  //// Print files /////
   const latestPrintFiles = ref([])
   const allPrintFiles = ref([])
-
-  // Variables Queue
   const queueJobs = ref([])
   const queueStatus = ref('')
 
-  // Variables system state
-  const systemStats = reactive({
-    cpuTemp: 0, // in Celsius
-    cpuUsage: 0, // percentage
-    memoryUsage: {
-      total: 0, // in kB
-      used: 0, // in kB
-      available: 0, // in kB
-    },
-    network: {
-      wlan0: {
-        bandwidth: 0, // in kB/s
-        received: 0, // in MB
-        transmitted: 0, // in MB
-      },
-    },
-    websocketConnections: 0,
-  })
-  const listUSB = reactive([])
-  const probeAccuracyModalVisible = ref(false)
-  const probeResults = ref(null)
-  const probeZValue = ref(null)
-
-  // Helpers Methods
+  //// Helpers Methods /////
   function formatTime(seconds) {
     const h = Math.floor(seconds / 3600)
     const m = Math.floor((seconds % 3600) / 60)
@@ -229,7 +225,7 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
       printerAxesConfigError.value = false
       console.log('Changin printer.cfg to standard')
       CrafterAPIStore.togglePrinterStandardConfig()
-      ServerInfoStore.resetFirmware()
+      MoonrakerStore.resetFirmware()
       database.printerAxesPositionStandard = true
       DatabaseStore.updateDatabase()
     } else if (
@@ -239,10 +235,19 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
       printerAxesConfigError.value = false
       console.log('Changin printer.cfg to infinite-z')
       CrafterAPIStore.togglePrinterInfiniteZConfig()
-      ServerInfoStore.resetFirmware()
+      MoonrakerStore.resetFirmware()
       database.printerAxesPositionStandard = false
       DatabaseStore.updateDatabase()
+    } else {
+      printerAxesConfigError.value = false
     }
+  }
+
+  function filamentWeight(length) {
+    const filamentArea = Math.PI * Math.pow(filamentDiameter / 2, 2)
+    const filamentVolume = filamentArea * length
+    const filamentWeight = filamentVolume * filamentDensity
+    return filamentWeight
   }
 
   return {
@@ -251,14 +256,18 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
     formatPrintTime,
     formatFileTime,
     checkPrinterConfig,
+    filamentWeight,
     // layout
     side_menu_visibility,
     printerAxesConfigError,
-    // Server Config
-    hostname,
     // Websocket
     isWebsocketConnected,
-    WebsockeMmessages,
+    WebsockeMessages,
+    // System Stats
+    systemStats,
+    // Database
+    isDatabaseLoaded,
+    database,
     // Moonraker Server
     isMoonrakerConnected,
     mcuStatus,
@@ -266,8 +275,6 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
     gcodeHistory,
     printerConfigStandardPosition,
     isPrinterSubscribe,
-    isHotendTarget,
-    isBedTarget,
     filamentDiameter,
     filamentDensity,
     printJobStatus,
@@ -275,21 +282,10 @@ export const useGeneralVariablesStore = defineStore('generalVariables', () => {
     controlStatus,
     fanStatus,
     printerConfig,
-    // Crafter3D DB
-    isDatabaseLoaded,
-    database,
     // Prin Files
     latestPrintFiles,
     allPrintFiles,
-    // Queue jobs
     queueJobs,
     queueStatus,
-    // System state
-    systemStats,
-    listUSB,
-    // Probe accuracy
-    probeAccuracyModalVisible,
-    probeResults,
-    probeZValue,
   }
 })

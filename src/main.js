@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 
 import { useWebsocketStore } from './stores/useWebsocketStore'
-import { useServerInfoStore } from './stores/useServerInfoStore'
+import { useMoonrakerStore } from './stores/useMoonrakerStore'
 import { usePrinterStore } from './stores/usePrinterStore'
 import { useDatabaseStore } from './stores/useDatabaseStore'
 import { useJobQueueStore } from '@/stores/useJobQueueStore'
@@ -90,6 +90,9 @@ import {
   faVirusSlash,
   faLocationCrosshairs,
   faXmarksLines,
+  faWaveSquare,
+  faTerminal,
+  faTableCells,
 } from '@fortawesome/free-solid-svg-icons'
 
 // Add the "bars" icon to the library
@@ -159,6 +162,9 @@ library.add(
   faVirusSlash,
   faLocationCrosshairs,
   faXmarksLines,
+  faWaveSquare,
+  faTerminal,
+  faTableCells,
 )
 
 // Get hostname
@@ -176,8 +182,8 @@ const websocketStore = useWebsocketStore()
 websocketStore.connectWebSocket()
 const DatabaseStore = useDatabaseStore()
 DatabaseStore.initializeDatabase()
-const ServerInfoStore = useServerInfoStore()
-ServerInfoStore.initServiceLoad()
+const MoonrakerStore = useMoonrakerStore()
+MoonrakerStore.initMoonraker()
 const PrinterStore = usePrinterStore()
 PrinterStore.initPrinterLoad()
 const JobQueueStore = useJobQueueStore()

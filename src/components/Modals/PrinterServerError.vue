@@ -75,7 +75,7 @@
           <button
             v-if="GeneralVariablesStore.mcuStatus.mcu_state != 'ready'"
             class="btn button_primary ml_12"
-            @click="ServerInfoStore.resetFirmware()"
+            @click="MoonrakerStore.resetFirmware()"
           >
             <font-awesome-icon :icon="['fas', 'power-off']" class="mr_8" /> Reset Firmware
           </button>
@@ -85,11 +85,11 @@
   </div>
 </template>
 <script setup>
-import { useServerInfoStore } from '@/stores/useServerInfoStore'
+import { useMoonrakerStore } from '@/stores/useMoonrakerStore'
 import { useGeneralVariablesStore } from '@/stores/useGeneralVariablesStore'
 
 // Variables
-const ServerInfoStore = useServerInfoStore()
+const MoonrakerStore = useMoonrakerStore()
 const GeneralVariablesStore = useGeneralVariablesStore()
 
 // Methods

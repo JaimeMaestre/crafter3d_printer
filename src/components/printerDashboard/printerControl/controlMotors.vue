@@ -48,11 +48,11 @@
       </div>
 
       <div class="ext_buttons">
-        <button class="btn button_primary" @click="move_Ext(1)">-Ext</button>
+        <button class="btn button_primary" @click="move_Ext(-1)">-Ext</button>
         <button class="btn button_primary_empty btn_home mt_8" disabled>
           <font-awesome-icon :icon="['fas', 'gears']" />
         </button>
-        <button class="btn button_primary mt_8" @click="move_Ext(-1)">+Ext</button>
+        <button class="btn button_primary mt_8" @click="move_Ext(1)">+Ext</button>
       </div>
     </div>
     <div class="belt_control mt_20">
@@ -93,6 +93,17 @@
         100mm
       </button>
     </div>
+    <div class="z_offset_buttons mt_20">
+      <button class="btn button_primary btn_first" @click="gCodeStore.positiveZoffset()">
+        +0.05mm
+      </button>
+      <button class="btn button_primary_empty" disabled>
+        Z Offset ({{ GeneralVariablesStore.controlStatus.z_offset }})
+      </button>
+      <button class="btn button_primary btn_last" @click="gCodeStore.positiveZoffset()">
+        -0.05mm
+      </button>
+    </div>
     <div class="mt_20">
       <button class="btn button_primary_empty w_100" @click="gCodeStore.disableMotors()">
         <font-awesome-icon :icon="['fas', 'virus-slash']" class="mr_8" /> Disable Motors
@@ -130,8 +141,8 @@ const move_Z = (direction) => {
 
 const move_Ext = (direction) => {
   let distance_to_move = distance.value
-  if (distance_to_move > 10) {
-    distance_to_move = 10
+  if (distance_to_move > 100) {
+    distance_to_move = 100
   }
   if (distance.value) gCodeStore.moveExtruder(distance_to_move * direction)
 }
@@ -228,6 +239,24 @@ const move_Belt = (direction) => {
 }
 
 .distance_buttons .btn_last {
+  border-radius: 0 5px 5px 0;
+}
+
+.z_offset_buttons {
+  display: flex;
+  width: 100%;
+}
+
+.z_offset_buttons .btn {
+  border-radius: 0px;
+  flex: 1 1 100%;
+}
+
+.z_offset_buttons .btn_first {
+  border-radius: 5px 0 0 5px;
+}
+
+.z_offset_buttons .btn_last {
   border-radius: 0 5px 5px 0;
 }
 </style>

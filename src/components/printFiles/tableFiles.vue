@@ -30,7 +30,7 @@
         <thead>
           <tr>
             <th class="image">Img</th>
-            <th class="title_name">Name</th>
+            <th class="file_name">Name</th>
             <th class="hide_mobile_1350">Filament</th>
             <th class="hide_mobile_700">Weight</th>
             <th class="hide_mobile_700">Print Time</th>
@@ -43,10 +43,16 @@
         <tbody>
           <tr v-for="(job, index) in GeneralVariablesStore.allPrintFiles" :key="index">
             <td class="image">
-              <img src="/public/images/printer_90.png" alt="print file overview" />
+              <img :src="job.metadata?.thumbnails || ''" alt="print file overview" />
             </td>
-            <td class="title_name font_complementary font_ellipsis" :title="job.path">
-              {{ job.path.replace(/^gcodes\//, '').replace('.gcode', '') }}
+            <td class="file_name font_complementary" :title="job.path">
+              {{
+                job.path
+                  .replace(/^gcodes\//, '')
+                  .replace('.gcode', '')
+                  .slice(0, 60) +
+                (job.path.replace(/^gcodes\//, '').replace('.gcode', '').length > 60 ? '...' : '')
+              }}
             </td>
             <td class="hide_mobile_1350">{{ job.metadata.filament.toFixed(2) }} m</td>
             <td class="hide_mobile_700">{{ job.metadata.weigth.toFixed(0) }} g</td>
@@ -106,5 +112,32 @@ const onFileChange = (event) => {
 
 .no_jobs {
   text-align: center;
+}
+
+table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+table .file_name {
+  overflow-wrap: anywhere;
+  width: 200px;
+
+  @media (max-width: 600px) {
+    width: 65%;
+  }
+}
+
+.image {
+  text-align: center;
+  @media (max-width: 600px) {
+    width: 15%;
+  }
+}
+
+.image img {
+  max-width: 50px;
+  max-height: 50px;
+  object-fit: contain;
 }
 </style>

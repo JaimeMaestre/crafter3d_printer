@@ -4,8 +4,11 @@
     <button class="btn button_green" @click="saveConfig()">
       <font-awesome-icon :icon="['fas', 'floppy-disk']" class="mr_8" /> Save & Restart
     </button>
-    <router-link to="/edit-file-45" class="btn button_primary ml_8">
+    <router-link to="/edit-file-infinite-z" class="btn button_primary ml_8">
       <font-awesome-icon :icon="['fas', 'pen']" class="mr_8" /> Edit infinite-Z cfg
+    </router-link>
+    <router-link to="/edit-file-printer" class="btn button_primary ml_8">
+      <font-awesome-icon :icon="['fas', 'pen']" class="mr_8" /> Edit General Printer cfg
     </router-link>
   </div>
   <div class="editor-container">
@@ -23,10 +26,10 @@ import { StreamLanguage } from '@codemirror/language'
 import { shell } from '@codemirror/legacy-modes/mode/shell'
 import { boysAndGirls } from 'thememirror'
 import { useCrafterAPIStore } from '@/stores/useCrafterAPIStore'
-import { useServerInfoStore } from '@/stores/useServerInfoStore.js'
+import { useMoonrakerStore } from '@/stores/useMoonrakerStore.js'
 
 const CrafterAPIStore = useCrafterAPIStore()
-const ServerInfoStore = useServerInfoStore()
+const MoonrakerStore = useMoonrakerStore()
 const configContent = ref('')
 const file_loaded = ref(false)
 const editorContainer = ref(null)
@@ -37,7 +40,7 @@ async function saveConfig() {
   configContent.value = code_mirror.value.state.doc.toString()
   await CrafterAPIStore.saveStandardConfig(code_mirror.value.state.doc.toString())
   file_loaded.value = true
-  ServerInfoStore.resetFirmware()
+  MoonrakerStore.resetFirmware()
 }
 
 onMounted(async () => {
@@ -82,7 +85,7 @@ watch(file_loaded, (newValue) => {
 .save_button {
   top: 54px;
   position: fixed;
-  z-index: 5;
+  z-index: 1;
   padding: 20px 0px;
   background: black;
   width: 100%;

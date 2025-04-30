@@ -5,12 +5,16 @@ import { useModalStore } from './useModalStore'
 import i18n from '@/languages'
 
 export const useDatabaseStore = defineStore('database', () => {
+  /////////////////////////////////
   // Variables
+  /////////////////////////////////
   const websocketStore = useWebsocketStore()
   const GeneralVariablesStore = useGeneralVariablesStore()
   const ModalStore = useModalStore()
 
+  /////////////////////////////////
   // Initialize
+  /////////////////////////////////
   function initializeDatabase() {
     const waitForConnection = new Promise((resolve) => {
       const checkConnection = setInterval(() => {
@@ -32,17 +36,17 @@ export const useDatabaseStore = defineStore('database', () => {
       })
   }
 
+  /////////////////////////////////
   // Helpers
+  /////////////////////////////////
   function isKeyMissing(local, remote) {
     for (const key in local) {
       if (!(key in remote)) {
         return true // Key is missing
       }
-
       const localValue = local[key]
       const remoteValue = remote[key]
 
-      // Check if both values are objects and not null, then recursively check keys
       if (
         typeof localValue === 'object' &&
         localValue !== null &&
@@ -58,13 +62,18 @@ export const useDatabaseStore = defineStore('database', () => {
     return false
   }
 
+  /////////////////////////////////
+  // Handle
+  /////////////////////////////////
   function handleDatabase(data) {
     for (const key in data) {
       GeneralVariablesStore.database[key] = data[key]
     }
   }
 
+  /////////////////////////////////
   // Getters
+  /////////////////////////////////
   function getDatabase() {
     websocketStore
       .sendMessage('server.database.get_item', {
@@ -76,7 +85,6 @@ export const useDatabaseStore = defineStore('database', () => {
             updateDatabase()
           } else {
             handleDatabase(response.result.value)
-            //set language
             i18n.global.locale = GeneralVariablesStore.database.others.language || 'en'
           }
         } else {
@@ -85,7 +93,9 @@ export const useDatabaseStore = defineStore('database', () => {
       })
   }
 
+  /////////////////////////////////
   // Delete
+  /////////////////////////////////
   function deleteDatabase() {
     for (const key in GeneralVariablesStore.database) {
       websocketStore.sendMessage('server.database.delete_item', {
@@ -95,8 +105,11 @@ export const useDatabaseStore = defineStore('database', () => {
     }
   }
 
+  /////////////////////////////////
   // Actions
+  /////////////////////////////////
   function updateDatabase() {
+    deleteDatabase()
     for (const key in GeneralVariablesStore.database) {
       websocketStore.sendMessage('server.database.post_item', {
         namespace: 'crafter3d_web',

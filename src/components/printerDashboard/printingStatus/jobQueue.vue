@@ -20,18 +20,17 @@
   <table class="mt_20">
     <thead>
       <tr>
-        <th class="title_name">Job</th>
+        <th class="id">id</th>
+        <th class="file_name">Job</th>
         <th>Qty</th>
         <th class="file_options">Opt</th>
       </tr>
     </thead>
     <tbody>
       <tr v-for="(job, index) in computedJobs" :key="job.index">
-        <td class="title_name font_complementary" :title="job.path">
-          {{ index + 1 }}.
-          <span class="font_ellipsis">{{
-            job.filename.replace(/^gcodes\//, '').replace('.gcode', '')
-          }}</span>
+        <td>{{ index + 1 }}</td>
+        <td class="file_name font_complementary" :title="job.path">
+          {{ job.filename.replace(/^gcodes\//, '').replace('.gcode', '') }}
         </td>
         <td class="image" :title="'45 Degrees'">
           {{ job.quantity }}
@@ -153,35 +152,22 @@ const computedJobs = computed(() => {
   text-align: center;
 }
 
-ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-li {
-  padding: 10px;
-  display: flex;
+table {
   width: 100%;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--primary-font-color);
-  align-items: center;
+  table-layout: fixed;
 }
 
-li .jobname {
-  display: flex;
-  align-items: center;
-  width: 60%;
-  white-space: nowrap;
+table .id {
+  width: 50px;
 }
 
-li .job_quantity {
-  display: flex;
-  align-items: center;
-}
+table .file_name {
+  overflow-wrap: anywhere;
+  width: 200px;
 
-li .job_quantity .btn {
-  padding: 4px 10px;
+  @media (max-width: 600px) {
+    width: 120px;
+  }
 }
 
 .file_options .dropdown_content_menu .delete:hover {

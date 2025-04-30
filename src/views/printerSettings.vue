@@ -7,6 +7,7 @@
     </div>
     <div class="printerSettings_mobile">
       <calibrationButtons />
+      <bedMesh />
       <gcodeConsole />
       <serverStatus />
       <printerStatus />
@@ -24,6 +25,7 @@ import printerStatus from '@/components/printerSettings/printerStatus/printerSta
 import wifiSettings from '@/components/printerSettings/wifiSettings/wifiSettings.vue'
 import othersSettings from '@/components/printerSettings/printerSettings/othersSettings.vue'
 import gcodeConsole from '@/components/printerSettings/console/GcodeConsole.vue'
+import bedMesh from '@/components/printerSettings/bedMesh/bedMesh.vue'
 </script>
 
 <style scoped>

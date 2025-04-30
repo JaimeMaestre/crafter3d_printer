@@ -8,7 +8,9 @@ export const useJobQueueStore = defineStore('jobQueue', () => {
   const modalStore = useModalStore()
   const GeneralVariablesStore = useGeneralVariablesStore()
 
+  /////////////////////////////////
   // Getters
+  /////////////////////////////////
   function getQueueJobs() {
     const waitForConnection = new Promise((resolve) => {
       const checkConnection = setInterval(() => {
@@ -40,7 +42,9 @@ export const useJobQueueStore = defineStore('jobQueue', () => {
       })
   }
 
-  // Actions
+  /////////////////////////////////
+  // Actions Job Queue
+  /////////////////////////////////
   function addQueueJob(fileName) {
     websocketStore
       .sendMessage('server.job_queue.post_job', { filenames: fileName })
@@ -77,16 +81,15 @@ export const useJobQueueStore = defineStore('jobQueue', () => {
       })
   }
 
-  function printFile(filename) {
-    websocketStore.sendMessage('printer.print.start', { filename: filename }).catch((error) => {
-      modalStore.showErrorModal('Unable to start printing: ' + error.message)
-    })
-  }
-
-  function cancelPrint() {
-    websocketStore.sendMessage('printer.print.cancel').catch((error) => {
-      modalStore.showErrorModal('Unable to start printing: ' + error.message)
-    })
+  function jobQueueJump(jobId) {
+    websocketStore
+      .sendMessage('server.job_queue.jump', { job_id: jobId })
+      .then(() => {
+        getQueueJobs()
+      })
+      .catch((error) => {
+        modalStore.showErrorModal('Failed to perform queue jump: ' + error.message)
+      })
   }
 
   function startQueue() {
@@ -100,15 +103,31 @@ export const useJobQueueStore = defineStore('jobQueue', () => {
       })
   }
 
-  function jobQueueJump(jobId) {
-    websocketStore
-      .sendMessage('server.job_queue.jump', { job_id: jobId })
-      .then(() => {
-        getQueueJobs()
-      })
-      .catch((error) => {
-        modalStore.showErrorModal('Failed to perform queue jump: ' + error.message)
-      })
+  /////////////////////////////////
+  // Actions Print
+  /////////////////////////////////
+  function printFile(filename) {
+    websocketStore.sendMessage('printer.print.start', { filename: filename }).catch((error) => {
+      modalStore.showErrorModal('Unable to start printing: ' + error.message)
+    })
+  }
+
+  function pausePrint() {
+    websocketStore.sendMessage('printer.print.pause').catch((error) => {
+      modalStore.showErrorModal('Unable to pause printing: ' + error.message)
+    })
+  }
+
+  function resumePrint() {
+    websocketStore.sendMessage('printer.print.resume').catch((error) => {
+      modalStore.showErrorModal('Unable to resume printing: ' + error.message)
+    })
+  }
+
+  function cancelPrint() {
+    websocketStore.sendMessage('printer.print.cancel').catch((error) => {
+      modalStore.showErrorModal('Unable to start printing: ' + error.message)
+    })
   }
 
   return {
@@ -118,7 +137,10 @@ export const useJobQueueStore = defineStore('jobQueue', () => {
     pauseQueue,
     startQueue,
     jobQueueJump,
+    // Print File
     printFile,
+    pausePrint,
+    resumePrint,
     cancelPrint,
   }
 })

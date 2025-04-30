@@ -1,9 +1,9 @@
 <!-- App.vue -->
 <template>
-  <div id="app" class="body_container main_container" @dragover.prevent="onDragOver">
+  <div id="app" class="body_container" @dragover.prevent="onDragOver">
     <TopBar />
     <SideBar />
-    <main>
+    <main class="main_container">
       <router-view />
     </main>
     <PrinterServerError />

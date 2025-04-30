@@ -44,149 +44,156 @@ export const useGcodeStore = defineStore('gCode', () => {
   }
 
   //Actions Control
-  function setLayerFanSpeed(speed_change) {
-    // Ensure the fan value stays within 0–1
-    const speed = Math.min(1, Math.max(0, speed_change))
-
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: `SET_FAN_SPEED FAN=layer_blower SPEED=${speed}`,
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to set Layer Blower fan speed: ' + error.message)
-      })
+  async function setLayerFanSpeed(speed_change) {
+    return new Promise((resolve, reject) => {
+      const speed = Math.min(255, Math.max(0, speed_change))
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: `M106 S${speed}`,
+        })
+        .then(() => resolve())
+        .catch((error) => {
+          ModalStore.showErrorModal('Failed to set Layer Blower fan speed: ' + error.message)
+          reject(error)
+        })
+    })
   }
 
-  function setAuxBlowerFanSpeed(speed_change) {
-    // Ensure the fan value stays within 0–1
-    const speed = Math.min(1, Math.max(0, speed_change))
-
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: `SET_FAN_SPEED FAN=aux_blower_1 SPEED=${speed}`,
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to set Aux Blower 1: ' + error.message)
-      })
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: `SET_FAN_SPEED FAN=aux_blower_2 SPEED=${speed}`,
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to set Aux Blower 2: ' + error.message)
-      })
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: `SET_FAN_SPEED FAN=aux_blower_3 SPEED=${speed}`,
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to set Aux Blower 3: ' + error.message)
-      })
+  async function setAuxBlowerFanSpeed(speed_change) {
+    return new Promise((resolve, reject) => {
+      const speed = Math.min(255, Math.max(0, speed_change))
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: `M106 P2 S${speed}`,
+        })
+        .then(() => resolve())
+        .catch((error) => {
+          ModalStore.showErrorModal('Failed to set Aux Blowers: ' + error.message)
+          reject(error)
+        })
+    })
   }
 
-  function setBedTemperature(target_temperature) {
-    const maxBedTemp = GeneralVariablesStore.database.motion.default_max_bed_temp.value || 120
-    if (target_temperature > maxBedTemp) {
-      target_temperature = maxBedTemp
-    }
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: `SET_HEATER_TEMPERATURE HEATER=heater_bed TARGET=${target_temperature}`,
-      })
-      .then(() => {
-        if (target_temperature > 0) {
-          GeneralVariablesStore.temperatureStatus.bed_status_temp = true
-        } else {
+  async function setBedTemperature(target_temperature) {
+    return new Promise((resolve, reject) => {
+      if (
+        target_temperature === undefined ||
+        target_temperature === null ||
+        target_temperature === ''
+      ) {
+        target_temperature = 0
+      }
+      if (isNaN(target_temperature)) {
+        ModalStore.showErrorModal('Invalid bed temperature value: must be a number')
+        reject(new Error('Invalid bed temperature value'))
+        return
+      }
+      const maxBedTemp = GeneralVariablesStore.database.motion.default_max_bed_temp.value || 120
+      if (target_temperature > maxBedTemp) {
+        target_temperature = maxBedTemp
+      }
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: `M140 S${target_temperature}`,
+        })
+        .then(() => {
+          if (target_temperature > 0) {
+            GeneralVariablesStore.temperatureStatus.bed_status_temp = true
+          } else {
+            GeneralVariablesStore.temperatureStatus.bed_status_temp = false
+          }
+          resolve()
+        })
+        .catch((error) => {
+          ModalStore.showErrorModal('Failed to set bed temperature: ' + error.message)
+          reject(error)
+        })
+    })
+  }
+
+  async function setHotendTemperature(target_temperature) {
+    return new Promise((resolve, reject) => {
+      if (
+        target_temperature === undefined ||
+        target_temperature === null ||
+        target_temperature === ''
+      ) {
+        target_temperature = 0
+      }
+      if (isNaN(target_temperature)) {
+        ModalStore.showErrorModal('Invalid hotend temperature value: must be a number')
+        reject(new Error('Invalid hotend temperature value'))
+        return
+      }
+      const maxHotendTemp =
+        GeneralVariablesStore.database.motion.default_max_hotend_temp.value || 300
+      if (target_temperature > maxHotendTemp) {
+        target_temperature = maxHotendTemp
+      }
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: `M104 S${target_temperature}`,
+        })
+        .then(() => {
+          GeneralVariablesStore.temperatureStatus.hotend_status_temp = true
+          resolve()
+        })
+        .catch((error) => {
+          ModalStore.showErrorModal('Failed to set toolhead temperature: ' + error.message)
+          reject(error)
+        })
+    })
+  }
+
+  async function offBedTemperature() {
+    return new Promise((resolve, reject) => {
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: `M140 S0`,
+        })
+        .then(() => {
           GeneralVariablesStore.temperatureStatus.bed_status_temp = false
-        }
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to set bed temperature: ' + error.message)
-      })
-  }
-
-  function setHotendTemperature(target_temperature) {
-    const maxHotendTemp = GeneralVariablesStore.database.motion.default_max_hotend_temp.value || 350
-    if (target_temperature > maxHotendTemp) {
-      target_temperature = maxHotendTemp
-    }
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: `SET_HEATER_TEMPERATURE HEATER=extruder TARGET=${target_temperature}`,
-      })
-      .then(() => {
-        GeneralVariablesStore.temperatureStatus.hotend_status_temp = true
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to set toolhead temperature: ' + error.message)
-      })
-  }
-
-  function offBedTemperature() {
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: `SET_HEATER_TEMPERATURE HEATER=heater_bed TARGET=0`,
-      })
-      .then(() => {
-        GeneralVariablesStore.temperatureStatus.bed_status_temp = false
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed turn off bed temperature: ' + error.message)
-      })
-  }
-
-  function offHotendTemperature() {
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: `SET_HEATER_TEMPERATURE HEATER=extruder TARGET=0`,
-      })
-      .then(() => {
-        GeneralVariablesStore.temperatureStatus.hotend_status_temp = false
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed turn off toolhead temperature: ' + error.message)
-      })
-  }
-
-  function offHeaters() {
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: `TURN_OFF_HEATERS`,
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed turn off heaters: ' + error.message)
-      })
-  }
-
-  function setAbsoluteAxes() {
-    return new Promise((resolve, reject) => {
-      websocketStore
-        .sendMessage('printer.gcode.script', {
-          script: `G90`,
+          resolve()
         })
-        .then(() => resolve())
         .catch((error) => {
-          console.error('Failed set absolute axes position: ' + error.message)
+          ModalStore.showErrorModal('Failed turn off bed temperature: ' + error.message)
           reject(error)
         })
     })
   }
 
-  function setRelativeAxes() {
+  async function offHotendTemperature() {
     return new Promise((resolve, reject) => {
       websocketStore
         .sendMessage('printer.gcode.script', {
-          script: `G91`,
+          script: `M104 S0`,
         })
-        .then(() => resolve())
+        .then(() => {
+          GeneralVariablesStore.temperatureStatus.hotend_status_temp = false
+          resolve()
+        })
         .catch((error) => {
-          console.error('Failed set relative axes position: ' + error.message)
+          ModalStore.showErrorModal('Failed turn off toolhead temperature: ' + error.message)
           reject(error)
         })
     })
   }
 
-  function setHomeXY() {
+  async function offHeaters() {
+    return new Promise((resolve, reject) => {
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: `TURN_OFF_HEATERS`,
+        })
+        .then(() => resolve())
+        .catch((error) => {
+          ModalStore.showErrorModal('Failed turn off heaters: ' + error.message)
+          reject(error)
+        })
+    })
+  }
+
+  async function setHomeXY() {
     return new Promise((resolve, reject) => {
       websocketStore
         .sendMessage('printer.gcode.script', {
@@ -200,7 +207,7 @@ export const useGcodeStore = defineStore('gCode', () => {
     })
   }
 
-  function setHomeFull() {
+  async function setHomeFull() {
     return new Promise((resolve, reject) => {
       websocketStore
         .sendMessage('printer.gcode.script', {
@@ -214,7 +221,7 @@ export const useGcodeStore = defineStore('gCode', () => {
     })
   }
 
-  function moveXaxes(
+  async function moveXaxes(
     distance,
     speed = GeneralVariablesStore.database.motion.default_XY_speed.value,
   ) {
@@ -238,7 +245,7 @@ export const useGcodeStore = defineStore('gCode', () => {
     })
   }
 
-  function moveYaxes(
+  async function moveYaxes(
     distance,
     speed = GeneralVariablesStore.database.motion.default_XY_speed.value,
   ) {
@@ -262,7 +269,7 @@ export const useGcodeStore = defineStore('gCode', () => {
     })
   }
 
-  function moveZaxes(
+  async function moveZaxes(
     distance,
     speed = GeneralVariablesStore.database.motion.default_Z_speed.value,
   ) {
@@ -286,154 +293,235 @@ export const useGcodeStore = defineStore('gCode', () => {
     })
   }
 
-  function moveExtruder(
+  async function moveExtruder(
     distance,
     speed = GeneralVariablesStore.database.motion.default_extruder_speed.value,
   ) {
     return new Promise((resolve, reject) => {
-      const newExtruderPosition =
-        Math.round(GeneralVariablesStore.controlStatus.current_position[3]) + distance
+      websocketStore.sendMessage('printer.gcode.script', {
+        script: 'G92 E0',
+      })
 
       websocketStore
         .sendMessage('printer.gcode.script', {
-          script: `G1 E${newExtruderPosition} F${speed}`,
+          script: `G1 E${distance} F${speed}`,
         })
-        .then(() => resolve())
         .catch((error) => {
           ModalStore.showErrorModal('Failed to move extruder: ' + error.message)
           reject(error)
         })
+
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: 'G92 E0',
+        })
+        .then(() => resolve())
     })
   }
 
-  function moveBelt(
+  async function moveBelt(
     distance,
     speed = GeneralVariablesStore.database.motion.default_belt_speed.value,
   ) {
+    websocketStore
+      .sendMessage('printer.gcode.script', {
+        script: `MANUAL_STEPPER STEPPER=belt MOVE=${distance} SPEED=${speed}`,
+      })
+      .then(() => {
+        websocketStore
+          .sendMessage('printer.gcode.script', {
+            script: `MANUAL_STEPPER STEPPER=belt SET_POSITION=0`,
+          })
+          .catch((error) => {
+            ModalStore.showErrorModal('Failed during belt motion: ' + error.message)
+          })
+      })
+      .catch((error) => {
+        ModalStore.showErrorModal('Failed to move belt: ' + error.message)
+      })
+  }
+
+  async function setLED() {
     return new Promise((resolve, reject) => {
       websocketStore
         .sendMessage('printer.gcode.script', {
-          script: `MANUAL_STEPPER STEPPER=belt MOVE=${distance} SPEED=${speed}`,
+          script: `TOGGLE_LED`,
         })
-        .then(() => {
-          websocketStore
-            .sendMessage('printer.gcode.script', {
-              script: `MANUAL_STEPPER STEPPER=belt SET_POSITION=0`,
-            })
-            .then(() => resolve())
-            .catch((error) => {
-              ModalStore.showErrorModal('Failed during belt motion: ' + error.message)
-              reject(error)
-            })
-        })
+        .then(() => resolve())
         .catch((error) => {
-          ModalStore.showErrorModal('Failed to move belt: ' + error.message)
+          ModalStore.showErrorModal('Failed to toggle LED: ' + error.message)
           reject(error)
         })
     })
   }
 
-  function setLED() {
-    console.log('LED someone puls me')
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: `TOGGLE_LED`,
-      })
-      .then(() => {
-        // Optionally update the local UI state if you read back the value elsewhere
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to toggle LED: ' + error.message)
-      })
+  async function zDrop() {
+    return new Promise((resolve, reject) => {
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: 'Z_DROP',
+        })
+        .then(() => resolve())
+        .catch((error) => {
+          ModalStore.showErrorModal('Failed to move to min Z position: ' + error.message)
+          reject(error)
+        })
+    })
   }
 
-  function startLED() {
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: `STARTUP_LED`,
-      })
-      .then(() => {
-        // Optionally update the local UI state if you read back the value elsewhere
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to toggle LED: ' + error.message)
-      })
+  async function cutFilament() {
+    return new Promise((resolve, reject) => {
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: 'CUT_FILAMENT',
+        })
+        .then(() => resolve())
+        .catch((error) => {
+          ModalStore.showErrorModal('Failed to move to min Z position: ' + error.message)
+          reject(error)
+        })
+    })
   }
 
-  function minZposition() {
-    const speed = GeneralVariablesStore.database.motion.default_Z_speed.value
-    const position = GeneralVariablesStore.controlStatus.max_print_size[2]
-
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: `G0 Z${position} F${speed}`,
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to move to min Z position: ' + error.message)
-      })
+  async function disableMotors() {
+    return new Promise((resolve, reject) => {
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: 'M84',
+        })
+        .then(() => resolve())
+        .catch((error) => {
+          ModalStore.showErrorModal('Failed to disable motors: ' + error.message)
+          reject(error)
+        })
+    })
   }
 
-  function cutFilament() {
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: 'CUT_FILAMENT',
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to move to min Z position: ' + error.message)
-      })
+  async function beltThrow() {
+    return new Promise((resolve, reject) => {
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: 'BELT_THROW',
+        })
+        .then(() => resolve())
+        .catch((error) => {
+          ModalStore.showErrorModal('Failed to disable motors: ' + error.message)
+          reject(error)
+        })
+    })
   }
 
-  function disableMotors() {
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: 'M84',
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to disable motors: ' + error.message)
-      })
+  async function purge() {
+    return new Promise((resolve, reject) => {
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: 'PURGE',
+        })
+        .then(() => resolve())
+        .catch((error) => {
+          ModalStore.showErrorModal('Failed to disable motors: ' + error.message)
+          reject(error)
+        })
+    })
   }
 
-  function beltThrow() {
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: 'BELT_THROW',
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to disable motors: ' + error.message)
-      })
+  async function bedMesh() {
+    return new Promise((resolve, reject) => {
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: 'BED_MESH_CALIBRATE',
+        })
+        .then(() => resolve())
+        .catch((error) => {
+          ModalStore.showErrorModal('Failed to disable motors: ' + error.message)
+          reject(error)
+        })
+    })
   }
 
-  function customGcode(gcode) {
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: gcode,
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to execute G-code: ' + error.message)
-      })
-    consoleHistory()
+  async function saveConfig() {
+    return new Promise((resolve, reject) => {
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: 'SAVE_CONFIG',
+        })
+        .then(() => resolve())
+        .catch((error) => {
+          ModalStore.showErrorModal('Failed to disable motors: ' + error.message)
+          reject(error)
+        })
+    })
+  }
+
+  async function positiveZoffset() {
+    return new Promise((resolve, reject) => {
+      const newOffset = GeneralVariablesStore.controlStatus.z_offset + 0.05
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: `SET_GCODE_OFFSET Z=${newOffset} MOVE=1`,
+        })
+        .then(() => resolve())
+        .catch((error) => {
+          ModalStore.showErrorModal('Failed to disable motors: ' + error.message)
+          reject(error)
+        })
+    })
+  }
+
+  async function negativeZoffset() {
+    return new Promise((resolve, reject) => {
+      const newOffset = GeneralVariablesStore.controlStatus.z_offset - 0.05
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: `SET_GCODE_OFFSET Z=${newOffset} MOVE=1`,
+        })
+        .then(() => resolve())
+        .catch((error) => {
+          ModalStore.showErrorModal('Failed to disable motors: ' + error.message)
+          reject(error)
+        })
+    })
+  }
+
+  async function customGcode(gcode) {
+    return new Promise((resolve, reject) => {
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: gcode,
+        })
+        .then(() => {
+          consoleHistory()
+          resolve()
+        })
+        .catch((error) => {
+          ModalStore.showErrorModal('Failed to execute G-code: ' + error.message)
+          reject(error)
+        })
+    })
   }
 
   // Calibration functions
-  function zTilt() {
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: 'Z_TILT_ADJUST',
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to execute Z_TILT_ADJUST: ' + error.message)
-      })
+  async function zTilt() {
+    return new Promise((resolve, reject) => {
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: 'Z_TILT_ADJUST',
+        })
+        .then(() => resolve())
+        .catch((error) => {
+          ModalStore.showErrorModal('Failed to execute Z_TILT_ADJUST: ' + error.message)
+          reject(error)
+        })
+    })
   }
 
   async function probeAccuracy() {
     try {
       // Reset probe results
-      GeneralVariablesStore.probeResults = null
-      GeneralVariablesStore.probeAccuracyModalVisible = true
+      ModalStore.probeResults = null
+      ModalStore.probeAccuracyModal = true
 
       await setHomeFull()
-
-      // Run PROBE_ACCURACY
       await websocketStore.sendMessage('printer.gcode.script', {
         script: 'PROBE_ACCURACY SPEED=5 SAMPLES=10 SAMPLE_RETRACT_DIST=2',
       })
@@ -458,8 +546,7 @@ export const useGcodeStore = defineStore('gCode', () => {
           const average = parseFloat(message.match(/average ([\d.-]+)/)[1])
           const median = parseFloat(message.match(/median ([\d.-]+)/)[1])
           const stddev = parseFloat(message.match(/standard deviation ([\d.-]+)/)[1])
-          GeneralVariablesStore.probeAccuracyModalVisible = true
-          GeneralVariablesStore.probeResults = {
+          ModalStore.probeResults = {
             samples: 10,
             mean: average,
             median: median,
@@ -468,6 +555,7 @@ export const useGcodeStore = defineStore('gCode', () => {
             min: minimum,
             range: range,
           }
+          ModalStore.probeAccuracyModal = true
         }
       }
     } catch (error) {
@@ -475,42 +563,69 @@ export const useGcodeStore = defineStore('gCode', () => {
     }
   }
 
-  function bedSensorCalibration() {
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: 'BED_SENSOR_CALIBRATION',
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to disable motors: ' + error.message)
-      })
+  async function bedSensorCalibration(bedPosition) {
+    return new Promise((resolve, reject) => {
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: `BED_SENSOR_CALIBRATION BED_POS=${bedPosition}`,
+        })
+        .then(() => resolve())
+        .catch((error) => {
+          ModalStore.showErrorModal('Failed to disable motors: ' + error.message)
+          reject(error)
+        })
+    })
   }
 
-  function beltCalibrationStart() {
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: 'BELT_CALIBRATION_START',
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to disable motors: ' + error.message)
-      })
+  async function beltCalibrationStart() {
+    return new Promise((resolve, reject) => {
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: 'BELT_CALIBRATION_START',
+        })
+        .then(() => resolve())
+        .catch((error) => {
+          ModalStore.showErrorModal('Failed to disable motors: ' + error.message)
+          reject(error)
+        })
+    })
   }
 
-  function beltCalibrationStop() {
-    websocketStore
-      .sendMessage('printer.gcode.script', {
-        script: 'BELT_CALIBRATION_STOP',
-      })
-      .catch((error) => {
-        ModalStore.showErrorModal('Failed to disable motors: ' + error.message)
-      })
+  async function inputShaper() {
+    return new Promise((resolve, reject) => {
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: 'SHAPER_CALIBRATE',
+        })
+        .then(() => {
+          ModalStore.showSuccessModal('Input shaper calibration started')
+          resolve()
+        })
+        .catch((error) => {
+          ModalStore.showErrorModal('Failed to disable motors: ' + error.message)
+          reject(error)
+        })
+    })
+  }
+
+  async function beltCalibrationStop() {
+    return new Promise((resolve, reject) => {
+      websocketStore
+        .sendMessage('printer.gcode.script', {
+          script: 'BELT_CALIBRATION_STOP',
+        })
+        .then(() => resolve())
+        .catch((error) => {
+          ModalStore.showErrorModal('Failed to disable motors: ' + error.message)
+          reject(error)
+        })
+    })
   }
 
   return {
     //getters
     consoleHistory,
     //actions
-    setAbsoluteAxes,
-    setRelativeAxes,
     setLayerFanSpeed,
     setAuxBlowerFanSpeed,
     setHotendTemperature,
@@ -525,18 +640,23 @@ export const useGcodeStore = defineStore('gCode', () => {
     moveZaxes,
     moveExtruder,
     moveBelt,
-    startLED,
     setLED,
-    minZposition,
+    zDrop,
     cutFilament,
     beltThrow,
     beltCalibrationStart,
     beltCalibrationStop,
     disableMotors,
+    purge,
+    bedMesh,
+    saveConfig,
+    positiveZoffset,
+    negativeZoffset,
     customGcode,
     // Calibration
     zTilt,
     probeAccuracy,
     bedSensorCalibration,
+    inputShaper,
   }
 })

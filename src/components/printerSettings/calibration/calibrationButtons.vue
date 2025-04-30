@@ -33,7 +33,7 @@
             <td class="table_button">
               <button
                 class="btn button_primary font_wrap table_button"
-                @click="gCodeStore.bedSensorCalibration()"
+                @click="ModalStore.showBedCalibration()"
               >
                 <div class="font_size_18">
                   <font-awesome-icon :icon="['fas', 'xmarks-lines']" />
@@ -68,6 +68,23 @@
             <td class="table_button">
               <button
                 class="btn button_primary font_wrap table_button w_100"
+                @click="gCodeStore.inputShaper()"
+              >
+                <div class="font_size_18">
+                  <font-awesome-icon :icon="['fas', 'wave-square']" />
+                </div>
+                Ipunt Shaper
+              </button>
+            </td>
+            <td class="title_name">
+              Run input shaper to calibrate the printer with new input shaper parameters. New
+              parameters will be automatically stored and updated. Printer will restart.
+            </td>
+          </tr>
+          <tr>
+            <td class="table_button">
+              <button
+                class="btn button_primary font_wrap table_button w_100"
                 @click="gCodeStore.beltCalibrationStart()"
               >
                 <div class="font_size_18">
@@ -81,16 +98,47 @@
               installed and review if is moving sideways
             </td>
           </tr>
+          <tr>
+            <td class="table_button">
+              <button
+                class="btn button_primary font_wrap table_button w_100"
+                @click="gCodeStore.bedMesh()"
+              >
+                <div class="font_size_18">
+                  <font-awesome-icon :icon="['fas', 'table-cells']" />
+                </div>
+                Bed Mesh
+              </button>
+            </td>
+            <td class="title_name">
+              Conduct bed mesh calibration, then click on Save Mesh to save the calibration.
+            </td>
+          </tr>
+          <tr>
+            <td class="table_button">
+              <button
+                class="btn button_green font_wrap table_button w_100 mt_8"
+                @click="gCodeStore.saveConfig()"
+              >
+                Save Config
+              </button>
+            </td>
+            <td class="title_name">Press Save Config after running all the calibration steps.</td>
+          </tr>
         </tbody>
       </table>
     </div>
   </div>
+  <bedCalibrationModal />
 </template>
 
 <script setup>
 import { useGcodeStore } from '@/stores/useGcodeStore'
+import { useModalStore } from '@/stores/useModalStore'
+import bedCalibrationModal from '@/components/Modals/bedCalibrationModal.vue'
 
 const gCodeStore = useGcodeStore()
+const ModalStore = useModalStore()
 </script>
 
 <style scoped>

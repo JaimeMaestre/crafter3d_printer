@@ -31,18 +31,18 @@
         </p>
       </div>
 
-      <div class="mt_12 mb_12">
+      <div class="mt_12 mb_12 modal_buttons">
         <button class="btn button_complementary" @click="ServerInfoStore.resetFirmware()">
-          <font-awesome-icon :icon="['fas', 'power-off']" class="mr_8" /> Reset Firmware
+          <font-awesome-icon :icon="['fas', 'power-off']" /> Reset Firmware
         </button>
-        <router-link to="/edit-file-standard" class="btn button_primary_empty ml_8">
-          <font-awesome-icon :icon="['fas', 'pen']" class="mr_8" /> Edit standard cfg
+        <router-link to="/edit-file-printer" class="btn button_primary_empty">
+          <font-awesome-icon :icon="['fas', 'pen']" class="mr_8" /> Edit General printer.cfg
         </router-link>
-        <router-link to="/edit-file-infinite-z" class="btn button_primary_empty ml_8">
-          <font-awesome-icon :icon="['fas', 'pen']" class="mr_8" /> Edit infinite-Z cfg
+        <router-link to="/edit-file-standard" class="btn button_primary_empty">
+          <font-awesome-icon :icon="['fas', 'pen']" class="mr_8" /> Edit standard.cfg
         </router-link>
-        <router-link to="/edit-file-printer" class="btn button_primary_empty ml_8">
-          <font-awesome-icon :icon="['fas', 'pen']" class="mr_8" /> Edit printer cfg
+        <router-link to="/edit-file-infinite-z" class="btn button_primary_empty">
+          <font-awesome-icon :icon="['fas', 'pen']" class="mr_8" /> Edit infinite-z.cfg
         </router-link>
       </div>
     </div>

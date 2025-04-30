@@ -8,15 +8,18 @@ export const useWebsocketStore = defineStore('websocket', () => {
   const GeneralVariablesStore = useGeneralVariablesStore()
   const PrinterStore = usePrinterStore()
   const ModalStore = useModalStore()
-
+  /////////////////////////////////
   // Variables
+  /////////////////////////////////
   const socket = ref(null)
   const pendingRequests = reactive({})
   const reconnectInterval = 5000
   let requestId = 0
 
-  //getters
-  function handleServerUpdate(data) {
+  /////////////////////////////////
+  // Handle
+  /////////////////////////////////
+  function handleSystemStatus(data) {
     const { cpu_temp, moonraker_stats, system_memory, network, websocket_connections } = data
 
     GeneralVariablesStore.systemStats.cpuTemp = cpu_temp
@@ -30,8 +33,6 @@ export const useWebsocketStore = defineStore('websocket', () => {
       GeneralVariablesStore.systemStats.network.wlan0.received = wlan0.received || 0
       GeneralVariablesStore.systemStats.network.wlan0.transmitted = wlan0.transmitted || 0
     }
-
-    // Update WebSocket connections
     GeneralVariablesStore.systemStats.websocketConnections = websocket_connections || 0
   }
 
@@ -39,23 +40,20 @@ export const useWebsocketStore = defineStore('websocket', () => {
     try {
       const data = JSON.parse(event.data)
 
-      // Handle JSON-RPC responses
       if (data.id && pendingRequests[data.id]) {
         pendingRequests[data.id](data)
-        // console.log('WebSocket response:', data)
         delete pendingRequests[data.id]
       } else {
-        // keep only the latest 5
-        GeneralVariablesStore.WebsockeMmessages.unshift(data)
-        if (GeneralVariablesStore.WebsockeMmessages.length > 5) {
-          GeneralVariablesStore.WebsockeMmessages.splice(5)
+        GeneralVariablesStore.WebsockeMessages.unshift(data)
+        if (GeneralVariablesStore.WebsockeMessages.length > 5) {
+          GeneralVariablesStore.WebsockeMessages.splice(5)
         }
 
         //message cases
         if (data.method === 'notify_status_update') {
           PrinterStore.handlePrinterData(data.params[0])
         } else if (data.method === 'notify_proc_stat_update') {
-          handleServerUpdate(data.params[0])
+          handleSystemStatus(data.params[0])
         }
       }
     } catch (error) {
@@ -63,21 +61,20 @@ export const useWebsocketStore = defineStore('websocket', () => {
     }
   }
 
-  //actions
+  /////////////////////////////////
+  // Actions
+  /////////////////////////////////
   function connectWebSocket() {
     if (socket.value && socket.value.readyState === WebSocket.OPEN) {
       console.warn('WebSocket already connected')
       return
     }
     socket.value = new WebSocket('ws://' + GeneralVariablesStore.hostname + '/websocket')
-
-    // On Connection Open
     socket.value.onopen = () => {
       GeneralVariablesStore.isWebsocketConnected = true
       console.log('WebSocket connected')
     }
 
-    // On Message Received
     socket.value.onmessage = handleWebSocketMessage
 
     socket.value.onclose = () => {
@@ -122,14 +119,15 @@ export const useWebsocketStore = defineStore('websocket', () => {
         }
       })
     } else {
+      GeneralVariablesStore.isWebsocketConnected = false
       ModalStore.showErrorModal('Cannot send message: WebSocket is not connected')
       return Promise.reject(new Error('WebSocket is not connected'))
     }
   }
 
-  // Action to disconnect WebSocket
   function disconnectWebSocket() {
     if (socket.value) {
+      GeneralVariablesStore.isWebsocketConnected = false
       socket.value.close()
     }
   }

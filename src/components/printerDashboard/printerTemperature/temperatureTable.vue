@@ -14,7 +14,12 @@
           <font-awesome-icon :icon="['fas', 'spray-can']" class="mr_8" /> Nozzle
         </td>
         <td>
-          {{ GeneralVariablesStore.temperatureStatus.hotend_status_temp ? 'ON' : 'OFF' }}
+          {{
+            GeneralVariablesStore.temperatureStatus.hotend_power > 0
+              ? GeneralVariablesStore.temperatureStatus.hotend_power.toFixed(1)
+              : 'OFF'
+          }}
+          {{ GeneralVariablesStore.temperatureStatus.hotend_power > 0 ? '%' : '' }}
         </td>
         <td>{{ GeneralVariablesStore.temperatureStatus.hotend_current_temp.toFixed(1) }} ºC</td>
         <td>
@@ -35,7 +40,12 @@
           <font-awesome-icon :icon="['fas', 'arrows-up-to-line']" class="mr_8" />Printing Bed
         </td>
         <td>
-          {{ GeneralVariablesStore.temperatureStatus.bed_status_temp ? 'ON' : 'OFF' }}
+          {{
+            GeneralVariablesStore.temperatureStatus.bed_power > 0
+              ? GeneralVariablesStore.temperatureStatus.bed_power.toFixed(1)
+              : 'OFF'
+          }}
+          {{ GeneralVariablesStore.temperatureStatus.bed_power > 0 ? '%' : '' }}
         </td>
         <td>{{ GeneralVariablesStore.temperatureStatus.bed_current_temp.toFixed(1) }} ºC</td>
         <td>
@@ -52,9 +62,11 @@
         </td>
       </tr>
       <tr>
-        <td class="title_name">Chamber</td>
+        <td class="title_name">Electronics</td>
         <td>-</td>
-        <td>20ºC</td>
+        <td>
+          {{ GeneralVariablesStore.temperatureStatus?.electronics_temp?.toFixed(1) || '-' }} ºC
+        </td>
         <td>-</td>
       </tr>
     </tbody>

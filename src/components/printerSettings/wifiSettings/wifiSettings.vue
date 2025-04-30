@@ -31,7 +31,7 @@
           <table>
             <thead>
               <tr>
-                <th>SSID</th>
+                <th class="ssid">SSID</th>
                 <th>Signal</th>
                 <th class="hide_mobile_1350">Security</th>
                 <th>Actions</th>
@@ -39,7 +39,7 @@
             </thead>
             <tbody>
               <tr v-for="(network_available, index) in listAvailableNetwork" :key="index">
-                <td>{{ network_available.ssid }}</td>
+                <td class="ssid">{{ network_available.ssid }}</td>
                 <td>{{ network_available.signal }}/100</td>
                 <td class="hide_mobile_1350">{{ network_available.security }}</td>
                 <td>
@@ -153,5 +153,9 @@ p {
 
 .no_wifi {
   text-align: center;
+}
+
+.ssid {
+  text-align: left;
 }
 </style>

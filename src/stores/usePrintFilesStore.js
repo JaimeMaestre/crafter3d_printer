@@ -82,7 +82,7 @@ export const usePrintFilesStore = defineStore('printFiles', () => {
   async function loadPrintFiles() {
     const waitForConnection = new Promise((resolve) => {
       const checkConnection = setInterval(() => {
-        if (GeneralVariablesStore.isDatabaseLoaded) {
+        if (GeneralVariablesStore.isDatabaseLoaded && GeneralVariablesStore.isMoonrakerConnected) {
           clearInterval(checkConnection)
           resolve()
         }
@@ -110,12 +110,10 @@ export const usePrintFilesStore = defineStore('printFiles', () => {
 
               // Store all files
               GeneralVariablesStore.allPrintFiles = filesWithMetadata
-              // Store 5 latest files
-              const latestFiles = filesWithMetadata.slice(
+              GeneralVariablesStore.latestPrintFiles = filesWithMetadata.slice(
                 0,
-                GeneralVariablesStore.database.countLatestPrintFiles,
+                GeneralVariablesStore.database.others.countLatestPrintFiles,
               )
-              GeneralVariablesStore.latestPrintFiles = latestFiles
             }
           })
           .catch((error) => {
@@ -130,35 +128,29 @@ export const usePrintFilesStore = defineStore('printFiles', () => {
   async function loadMetaData(filename) {
     try {
       const response = await websocketStore.sendMessage('server.files.metadata', { filename })
-      const thumbnails = response.result.thumbnails || []
 
       // Find the thumbnail with the largest size
+      const thumbnails = response.result.thumbnails || []
       const largestThumbnail = thumbnails.reduce((largest, current) => {
         return current.size > (largest?.size || 0) ? current : largest
       }, null)
+      const thumbnailUrl = largestThumbnail
+        ? `http://${GeneralVariablesStore.hostname}/server/files/gcodes/${largestThumbnail.relative_path}`
+        : null
+
       return {
         slicer: response.result.slicer || 'Unkown',
         filament: response.result.filament_total / 1000 || '0',
         weigth: response.result.filament_total
-          ? filamentWeight(response.result.filament_total)
+          ? GeneralVariablesStore.filamentWeight(response.result.filament_total)
           : '0',
         estimated_time: response.result.estimated_time || 0,
-        thumbnails: largestThumbnail ? largestThumbnail.relative_path : 'Unkown',
+        thumbnails: thumbnailUrl,
       }
     } catch (error) {
       console.log('Failed to load metadata for file:', filename, 'Error:', error.message)
       return {}
     }
-  }
-
-  // Helpers
-  function filamentWeight(length) {
-    // Convert diameter from mm to cm
-    const radius = 1.75 / 20 // Divide by 2 for radius, then by 10 for cm
-    // Calculate volume in cm³
-    const volume = Math.PI * Math.pow(radius, 2) * (length / 10) // Length in cm
-    // Calculate weight in grams
-    return volume * 1.24
   }
 
   return {

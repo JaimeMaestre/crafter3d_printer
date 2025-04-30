@@ -9,8 +9,8 @@
     </button>
     <button
       :class="{
-        'btn button_primary': GeneralVariablesStore.controlStatus.led,
-        'btn button_primary_empty': !GeneralVariablesStore.controlStatus.led,
+        'btn button_primary': !GeneralVariablesStore.controlStatus.led,
+        'btn button_primary_empty': GeneralVariablesStore.controlStatus.led,
       }"
       @click="gCodeStore.setLED()"
     >
@@ -25,11 +25,11 @@
       <div class="font_size_18"><font-awesome-icon :icon="['fas', 'scissors']" /></div>
       Filament Cut
     </button>
-    <button class="btn button_primary_empty">
+    <button class="btn button_primary_empty" @click="gCodeStore.purge()">
       <div class="font_size_18"><font-awesome-icon :icon="['fas', 'soap']" /></div>
       Purge & Clean
     </button>
-    <button class="btn button_primary_empty" @click="gCodeStore.minZposition()">
+    <button class="btn button_primary_empty" @click="gCodeStore.zDrop()">
       <div class="font_size_18"><font-awesome-icon :icon="['fas', 'arrow-down-short-wide']" /></div>
       Lower Z Axis
     </button>

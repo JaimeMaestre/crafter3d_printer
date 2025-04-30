@@ -4,7 +4,7 @@
     <div class="fan_header">
       <div class="font_size_16_bold">
         <font-awesome-icon :icon="['fas', 'fan']" class="mr_8" />
-        Layer Fan ({{ GeneralVariablesStore.fanStatus.layer_blower * 100 }}%)
+        Layer Fan ({{ (GeneralVariablesStore.fanStatus.layer_blower * 100).toFixed(0) }}%)
       </div>
       <div>100%</div>
     </div>
@@ -12,17 +12,17 @@
       type="range"
       class="fan_input w_100 mt_12"
       min="0"
-      max="1"
-      step="0.1"
-      @input="gCodeStore.setLayerFanSpeed(parseFloat($event.target.value))"
-      :value="GeneralVariablesStore.fanStatus.layer_blower"
+      max="255"
+      step="1"
+      @input="gCodeStore.setLayerFanSpeed($event.target.value)"
+      :value="GeneralVariablesStore.fanStatus.layer_blower * 255"
     />
 
     <!-- Aux Fan -->
     <div class="fan_header mt_20">
       <div class="font_size_16_bold">
         <font-awesome-icon :icon="['fas', 'fan']" class="mr_8" />
-        Aux Fan ({{ GeneralVariablesStore.fanStatus.aux_blower * 100 }}%)
+        Aux Fan ({{ (GeneralVariablesStore.fanStatus.aux_blower * 100).toFixed(0) }}%)
       </div>
       <div>100%</div>
     </div>
@@ -30,10 +30,10 @@
       type="range"
       class="fan_input w_100 mt_12"
       min="0"
-      max="1"
+      max="255"
       step="0.1"
       @input="gCodeStore.setAuxBlowerFanSpeed(parseFloat($event.target.value))"
-      :value="GeneralVariablesStore.fanStatus.aux_blower"
+      :value="GeneralVariablesStore.fanStatus.aux_blower * 255"
     />
 
     <!-- Hotend Fan -->
